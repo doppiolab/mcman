@@ -9,12 +9,21 @@ import (
 
 // Root Config structure.
 type Config struct {
-	Server ServerConfig `mapstructure:"server"`
+	Server    ServerConfig    `mapstructure:"server"`
+	Minecraft MinecraftConfig `mapstructure:"minecraft"`
 }
 
 type ServerConfig struct {
 	// Hostname and Port to listen. Example: 0.0.0.0:8000
 	Host string `mapstructure:"host"`
+}
+
+type MinecraftConfig struct {
+	JavaCommand string   `mapstructure:"java_command"`
+	JarPath     string   `mapstructure:"jar_path"`
+	WorkingDir  string   `mapstructure:"working_dir"`
+	JavaOptions []string `mapstructure:"java_options"`
+	Args        []string `mapstructure:"args"`
 }
 
 func init() {
@@ -23,6 +32,10 @@ func init() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	viper.SetConfigType("yaml")
+
+	viper.SetDefault("server.host", ":8000")
+	viper.SetDefault("minecraft.java", "java")
+	viper.SetDefault("minecraft.args", []string{"nogui"})
 }
 
 // Initialize Configuration on startup.
