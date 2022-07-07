@@ -1,0 +1,6 @@
+linters:
+  disable:
+    - structcheck
+    - gosimple
+    - staticcheck
+    - unused
