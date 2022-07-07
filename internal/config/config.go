@@ -7,11 +7,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Root Config structure.
 type Config struct {
 	Server ServerConfig `mapstructure:"server"`
 }
 
 type ServerConfig struct {
+	// Hostname and Port to listen. Example: 0.0.0.0:8000
 	Host string `mapstructure:"host"`
 }
 
