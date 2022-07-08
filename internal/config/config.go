@@ -16,6 +16,8 @@ type Config struct {
 type ServerConfig struct {
 	// Hostname and Port to listen. Example: 0.0.0.0:8000
 	Host string `mapstructure:"host"`
+	// Print debug messages if true.
+	Debug bool `mapstructure:"debug"`
 }
 
 type MinecraftConfig struct {
@@ -34,6 +36,8 @@ func init() {
 	viper.SetConfigType("yaml")
 
 	viper.SetDefault("server.host", ":8000")
+	viper.SetDefault("server.debug", false)
+
 	viper.SetDefault("minecraft.java", "java")
 	viper.SetDefault("minecraft.args", []string{"nogui"})
 }

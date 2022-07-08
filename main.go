@@ -11,6 +11,7 @@ import (
 
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/doppiolab/mcman/internal/server"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -20,9 +21,18 @@ var (
 
 func main() {
 	flag.Parse()
-	log.Info().Str("config-file", *configFileName).Msg("start mcman")
 
 	cfg := config.MustGetConfig(*configFileName)
+
+	// logger config
+	log.Logger = log.With().Caller().Logger()
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if cfg.Server.Debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		log.Debug().Msg("debug mode is enabled")
+	}
+
+	log.Info().Str("config-file", *configFileName).Msg("start mcman")
 
 	// launch server
 	svr, err := server.New(&cfg.Server)
