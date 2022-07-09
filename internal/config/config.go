@@ -39,6 +39,7 @@ func init() {
 	viper.SetDefault("server.debug", false)
 
 	viper.SetDefault("minecraft.java", "java")
+	viper.SetDefault("minecraft.working_dir", ".")
 	viper.SetDefault("minecraft.args", []string{"nogui"})
 }
 

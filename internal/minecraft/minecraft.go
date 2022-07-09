@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -52,7 +53,12 @@ func NewMinecraftServer(cfg *config.MinecraftConfig) (MinecraftServer, error) {
 		return nil, errors.Wrap(err, "cannot get stderr pipe")
 	}
 
-	// TODO(hayeon): change process workdir to cfg.WorkingDir
+	if cfg.WorkingDir != "" {
+		mcCmd.Dir = cfg.WorkingDir
+		if err := maybeCreateWorkingDir(mcCmd.Dir); err != nil {
+			return nil, err
+		}
+	}
 
 	return &minecraftServer{
 		svrProcess: mcCmd,
@@ -101,6 +107,26 @@ func (s *minecraftServer) PutCommand(cmd string) error {
 	if err != nil {
 		return errors.Wrap(err, "cannot put command")
 	}
+	return nil
+}
+
+// Create working directory if it doesn't exist.
+func maybeCreateWorkingDir(path string) error {
+	fileInfo, err := os.Stat(path)
+
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return errors.Wrap(err, "cannot get working dir")
+		}
+
+		log.Info().Str("path", path).Msg("create working dir for server")
+		if err := os.MkdirAll(path, os.ModePerm); err != nil {
+			return errors.Wrap(err, "cannot create working dir")
+		}
+	} else if !fileInfo.IsDir() {
+		return errors.New("working dir does exist but not a directory")
+	}
+
 	return nil
 }
 

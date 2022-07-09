@@ -2,11 +2,15 @@ package minecraft
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
 	"strings"
 	"testing"
 
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateMinecraftCommand(t *testing.T) {
@@ -62,4 +66,29 @@ func TestStreamReaderToChan(t *testing.T) {
 			assert.Equal(t, tt, actual)
 		})
 	}
+}
+
+func TestMaybeCreateWorkingDir(t *testing.T) {
+	tempDir := t.TempDir()
+
+	// create working dir
+	notExistedPath := path.Join(tempDir, "server-data")
+	err := maybeCreateWorkingDir(notExistedPath)
+	require.NoError(t, err)
+	stat, err := os.Stat(notExistedPath)
+	require.NoError(t, err)
+	require.True(t, stat.IsDir())
+
+	// Even if maybeCreateWorkingDir is called with already existed directory,
+	// it should not return error.
+	err = maybeCreateWorkingDir(notExistedPath)
+	require.NoError(t, err)
+
+	// Prepare dummy file and call maybeCreateWorkingDir.
+	// It should return error.
+	dummyFilePath := path.Join(tempDir, "dummy_file")
+	err = ioutil.WriteFile(dummyFilePath, []byte("dummy_content"), 0644)
+	require.NoError(t, err)
+	err = maybeCreateWorkingDir(dummyFilePath)
+	require.Error(t, err)
 }
