@@ -10,6 +10,8 @@ import (
 	"syscall"
 
 	"github.com/doppiolab/mcman/internal/config"
+	"github.com/doppiolab/mcman/internal/minecraft"
+	"github.com/doppiolab/mcman/internal/minecraft/logstream"
 	"github.com/doppiolab/mcman/internal/server"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -33,6 +35,21 @@ func main() {
 	}
 
 	log.Info().Str("config-file", *configFileName).Msg("start mcman")
+
+	// launch minecraft server
+	mcsvr, err := minecraft.NewMinecraftServer(&cfg.Minecraft)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create minecraft server")
+	}
+	log.Info().Msgf("start minecraft server")
+	stdout, stderr, err := mcsvr.Start()
+	if err != nil {
+		log.Fatal().Err(err).Msg("cannot start minecraft server")
+	}
+
+	// launch log stream
+	logStream, _ := logstream.NewLogstream(&cfg.Minecraft.LogWebhook, map[string]<-chan string{"stdout": stdout, "stderr": stderr})
+	logStream.Start()
 
 	// launch server
 	svr, err := server.New(&cfg.Server)

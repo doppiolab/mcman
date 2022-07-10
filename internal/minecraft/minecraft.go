@@ -16,8 +16,8 @@ import (
 //go:generate mockgen -source minecraft.go -destination minecraft_mock.go -package "minecraft" MinecraftServer
 
 type MinecraftServer interface {
-	// Start subprocess and stream stdout and stderr to channels.
-	Start() (stdout chan string, stderr chan string, err error)
+	// Start subprocess and returns stdout and stderr channel.
+	Start() (chan string, chan string, error)
 
 	// If server is already exited or stop command is sent successfully, return nil, otherwise return error.
 	Stop() error
@@ -69,7 +69,7 @@ func NewMinecraftServer(cfg *config.MinecraftConfig) (MinecraftServer, error) {
 	}, nil
 }
 
-func (s *minecraftServer) Start() (stdout chan string, stderr chan string, err error) {
+func (s *minecraftServer) Start() (chan string, chan string, error) {
 	if err := s.svrProcess.Start(); err != nil {
 		return nil, nil, errors.Wrap(err, "cannot start server subprocess")
 	}
@@ -140,7 +140,7 @@ func createMinecraftCommand(cfg *config.MinecraftConfig) string {
 
 // stream io.Reader to write only chan.
 //
-// If this function met io.EOF, out channel will be closed.
+// If this function met io.EOF.
 func streamReaderToChan(in io.Reader, out chan<- string) {
 	scanner := bufio.NewScanner(in)
 	for scanner.Scan() {
