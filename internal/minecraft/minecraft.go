@@ -2,11 +2,12 @@ package minecraft
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
+	"syscall"
 
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/pkg/errors"
@@ -24,6 +25,9 @@ type MinecraftServer interface {
 
 	// Send command to the minecraft server process.
 	PutCommand(cmd string) error
+
+	// Get minecraft server process
+	GetProcess() *exec.Cmd
 }
 
 type minecraftServer struct {
@@ -33,12 +37,16 @@ type minecraftServer struct {
 	stdinPipe  io.WriteCloser
 	stdoutPipe io.ReadCloser
 	stderrPipe io.ReadCloser
+
+	stdinLock sync.Mutex
 }
 
 func NewMinecraftServer(cfg *config.MinecraftConfig) (MinecraftServer, error) {
-	minecraftCommandString := createMinecraftCommand(cfg)
-	log.Info().Msgf("launch minecraft server. cmd: %s", minecraftCommandString)
-	mcCmd := exec.Command("bash", "-c", minecraftCommandString)
+	minecraftCommand := createMinecraftCommandArgs(cfg)
+	log.Info().Msgf("launch minecraft server. cmd: %s %s", cfg.JavaCommand, strings.Join(minecraftCommand, " "))
+	mcCmd := exec.Command(cfg.JavaCommand, minecraftCommand...)
+	// prevent shell to send signal to subprocess
+	mcCmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	stdinPipe, err := mcCmd.StdinPipe()
 	if err != nil {
@@ -92,22 +100,24 @@ func (s *minecraftServer) Stop() error {
 		return errors.Wrap(err, "cannot wait server process")
 	}
 
-	// clean up all resources
-	s.stdinPipe.Close()
-	s.stdoutPipe.Close()
-	s.stderrPipe.Close()
-
 	return nil
 }
 
 func (s *minecraftServer) PutCommand(cmd string) error {
-	// TODO(hayeon): add lock to prevent race cond
+	s.stdinLock.Lock()
+	defer s.stdinLock.Unlock()
+
 	cmd = strings.Trim(cmd, " \n\r")
-	_, err := s.stdinPipe.Write([]byte(cmd + "\n"))
+	n, err := io.WriteString(s.stdinPipe, cmd+"\n")
+	log.Info().Int("n", n).Msgf("sent command \"%s\"", cmd)
 	if err != nil {
 		return errors.Wrap(err, "cannot put command")
 	}
 	return nil
+}
+
+func (s *minecraftServer) GetProcess() *exec.Cmd {
+	return s.svrProcess
 }
 
 // Create working directory if it doesn't exist.
@@ -131,11 +141,13 @@ func maybeCreateWorkingDir(path string) error {
 }
 
 // Create minecraft server launch command from minecraft config.
-func createMinecraftCommand(cfg *config.MinecraftConfig) string {
-	javaOptions := strings.Join(cfg.JavaOptions, " ")
-	args := strings.Join(cfg.Args, " ")
-
-	return fmt.Sprintf("%s %s -jar %s %s", cfg.JavaCommand, javaOptions, cfg.JarPath, args)
+func createMinecraftCommandArgs(cfg *config.MinecraftConfig) []string {
+	result := []string{}
+	result = append(result, cfg.JavaOptions...)
+	result = append(result, "-jar")
+	result = append(result, cfg.JarPath)
+	result = append(result, cfg.Args...)
+	return result
 }
 
 // stream io.Reader to write only chan.

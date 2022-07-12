@@ -3,3 +3,4 @@ server:
   debug: false
 minecraft:
   working_dir: "./server-data"
+  jar_path: "../resources/server-1.19.jar"

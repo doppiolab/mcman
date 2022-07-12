@@ -47,7 +47,7 @@ func init() {
 	viper.SetDefault("server.host", ":8000")
 	viper.SetDefault("server.debug", false)
 
-	viper.SetDefault("minecraft.java", "java")
+	viper.SetDefault("minecraft.java_command", "java")
 	viper.SetDefault("minecraft.working_dir", ".")
 	viper.SetDefault("minecraft.args", []string{"nogui"})
 	viper.SetDefault("minecraft.log_webhook.max_log_per_request", 100)

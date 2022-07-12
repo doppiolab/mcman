@@ -16,30 +16,28 @@ import (
 func TestCreateMinecraftCommand(t *testing.T) {
 	tests := []struct {
 		cfg      *config.MinecraftConfig
-		expected string
+		expected []string
 	}{
 		{
 			cfg: &config.MinecraftConfig{
-				JavaCommand: "java",
-				JarPath:     "server.jar",
-				Args:        []string{"nogui"},
+				JarPath: "server.jar",
+				Args:    []string{"nogui"},
 			},
-			expected: "java  -jar server.jar nogui",
+			expected: []string{"-jar", "server.jar", "nogui"},
 		},
 		{
 			cfg: &config.MinecraftConfig{
-				JavaCommand: "java13",
 				JavaOptions: []string{"-Xms1024m"},
 				JarPath:     "server2.jar",
 				Args:        []string{"nogui"},
 			},
-			expected: "java13 -Xms1024m -jar server2.jar nogui",
+			expected: []string{"-Xms1024m", "-jar", "server2.jar", "nogui"},
 		},
 	}
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("Test #%d", i), func(t *testing.T) {
-			actual := createMinecraftCommand(tt.cfg)
+			actual := createMinecraftCommandArgs(tt.cfg)
 			assert.Equal(t, tt.expected, actual)
 		})
 	}

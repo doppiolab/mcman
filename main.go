@@ -27,9 +27,9 @@ func main() {
 	cfg := config.MustGetConfig(*configFileName)
 
 	// logger config
-	log.Logger = log.With().Caller().Logger()
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	if cfg.Server.Debug {
+		log.Logger = log.With().Caller().Logger()
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 		log.Debug().Msg("debug mode is enabled")
 	}
@@ -41,14 +41,18 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create minecraft server")
 	}
-	log.Info().Msgf("start minecraft server")
 	stdout, stderr, err := mcsvr.Start()
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot start minecraft server")
 	}
+	log.Info().Int("pid", mcsvr.GetProcess().Process.Pid).Msgf("started minecraft server")
 
 	// launch log stream
-	logStream, _ := logstream.NewLogstream(&cfg.Minecraft.LogWebhook, map[string]<-chan string{"stdout": stdout, "stderr": stderr})
+	logStream := logstream.New(&cfg.Minecraft.LogWebhook, map[string]chan string{"stdout": stdout, "stderr": stderr})
+	logStream.RegisterLogCallback("zerolog", func(line string) error {
+		log.Info().Str("from", "mc-server").Msg(line)
+		return nil
+	})
 	logStream.Start()
 
 	// launch server
@@ -75,4 +79,12 @@ func main() {
 	if err := svr.Shutdown(ctx); err != nil {
 		log.Error().Err(err).Msg("cannot shutdown gateway server")
 	}
+
+	log.Info().Msg("stopping minecraft server")
+	if err := mcsvr.Stop(); err != nil {
+		log.Error().Err(err).Msg("cannot stop minecraft server")
+	}
+
+	log.Info().Msg("stopping log stream for minecraft server")
+	logStream.Stop()
 }
