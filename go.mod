@@ -3,6 +3,7 @@ module github.com/doppiolab/mcman
 go 1.18
 
 require (
+	github.com/bep/debounce v1.2.1
 	github.com/golang/mock v1.4.4
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/pkg/errors v0.9.1

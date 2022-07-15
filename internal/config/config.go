@@ -30,9 +30,8 @@ type MinecraftConfig struct {
 }
 
 type LogWebhookConfig struct {
-	DiscordUrl       string `mapstructure:"discord"`
-	SlackUrl         string `mapstructure:"slack"`
-	MaxLogPerRequest int    `mapstructure:"max_log_per_request"`
+	DiscordUrl string `mapstructure:"discord"`
+	SlackUrl   string `mapstructure:"slack"`
 	// threshold for debouncing log stream, unit: millisecond
 	DebounceThreshold int `mapstructure:"debounce_threshold"`
 }
@@ -50,8 +49,7 @@ func init() {
 	viper.SetDefault("minecraft.java_command", "java")
 	viper.SetDefault("minecraft.working_dir", ".")
 	viper.SetDefault("minecraft.args", []string{"nogui"})
-	viper.SetDefault("minecraft.log_webhook.max_log_per_request", 100)
-	viper.SetDefault("minecraft.log_webhook.debounce_threshold", 3)
+	viper.SetDefault("minecraft.log_webhook.debounce_threshold", 100)
 }
 
 // Initialize Configuration on startup.

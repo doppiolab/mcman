@@ -12,6 +12,7 @@ import (
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/doppiolab/mcman/internal/minecraft"
 	"github.com/doppiolab/mcman/internal/minecraft/logstream"
+	"github.com/doppiolab/mcman/internal/minecraft/logstream/callback"
 	"github.com/doppiolab/mcman/internal/server"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -49,10 +50,8 @@ func main() {
 
 	// launch log stream
 	logStream := logstream.New(&cfg.Minecraft.LogWebhook, map[string]chan string{"stdout": stdout, "stderr": stderr})
-	logStream.RegisterLogCallback("zerolog", func(line string) error {
-		log.Info().Str("from", "mc-server").Msg(line)
-		return nil
-	})
+	logStream.RegisterLogCallback("webhook", callback.NewWebhookCallback(&cfg.Minecraft.LogWebhook))
+	logStream.RegisterLogCallback("zerolog", callback.NewLogCallback(log.With().Str("from", "mc-server").Logger()))
 	logStream.Start()
 
 	// launch server

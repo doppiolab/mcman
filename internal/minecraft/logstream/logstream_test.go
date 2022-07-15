@@ -10,8 +10,8 @@ import (
 
 func TestLogStream_Callback(t *testing.T) {
 	results := []string{}
-	resultsAppendCallback := func(msg string) error {
-		results = append(results, msg)
+	resultsAppendCallback := func(l *LogBlock) error {
+		results = append(results, l.String())
 		return nil
 	}
 
@@ -38,8 +38,8 @@ func TestLogStream_Callback(t *testing.T) {
 
 func TestLogStream_CallbackWithMultipleChannel(t *testing.T) {
 	results := []string{}
-	resultsAppendCallback := func(msg string) error {
-		results = append(results, msg)
+	resultsAppendCallback := func(l *LogBlock) error {
+		results = append(results, l.String())
 		return nil
 	}
 
@@ -62,7 +62,7 @@ func TestLogStream_CallbackWithMultipleChannel(t *testing.T) {
 }
 
 func TestLogStream_TryToDeregisterUnknown(t *testing.T) {
-	emptyCallback := func(_ string) error { return nil }
+	emptyCallback := func(*LogBlock) error { return nil }
 
 	chans := map[string]chan string{}
 	logStream := New(&config.LogWebhookConfig{}, chans)
@@ -78,7 +78,7 @@ func TestLogStream_TryToDeregisterUnknown(t *testing.T) {
 }
 
 func TestLogStream_SendAfterStop(t *testing.T) {
-	emptyCallback := func(_ string) error { return nil }
+	emptyCallback := func(*LogBlock) error { return nil }
 
 	testChan := make(chan string)
 	chans := map[string]chan string{"test": testChan}
