@@ -8,11 +8,12 @@ import (
 )
 
 func New(cfg *config.ServerConfig) (*http.Server, error) {
-	echoHandler := echo.New()
+	e := echo.New()
+	e.Static("/static", "static")
 
 	httpServer := &http.Server{
 		Addr:    cfg.Host,
-		Handler: echoHandler,
+		Handler: e,
 	}
 	return httpServer, nil
 }
