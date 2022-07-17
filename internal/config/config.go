@@ -21,12 +21,13 @@ type ServerConfig struct {
 }
 
 type MinecraftConfig struct {
-	JavaCommand string           `mapstructure:"java_command"`
-	JarPath     string           `mapstructure:"jar_path"`
-	WorkingDir  string           `mapstructure:"working_dir"`
-	JavaOptions []string         `mapstructure:"java_options"`
-	Args        []string         `mapstructure:"args"`
-	LogWebhook  LogWebhookConfig `mapstructure:"log_webhook"`
+	JavaCommand       string           `mapstructure:"java_command"`
+	JarPath           string           `mapstructure:"jar_path"`
+	WorkingDir        string           `mapstructure:"working_dir"`
+	JavaOptions       []string         `mapstructure:"java_options"`
+	Args              []string         `mapstructure:"args"`
+	SkipStartForDebug bool             `mapstructure:"skip_start_for_debug"`
+	LogWebhook        LogWebhookConfig `mapstructure:"log_webhook"`
 }
 
 type LogWebhookConfig struct {

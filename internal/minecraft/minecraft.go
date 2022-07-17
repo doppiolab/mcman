@@ -78,12 +78,17 @@ func NewMinecraftServer(cfg *config.MinecraftConfig) (MinecraftServer, error) {
 }
 
 func (s *minecraftServer) Start() (chan string, chan string, error) {
+	stdoutChan := make(chan string)
+	stderrChan := make(chan string)
+
+	if s.cfg.SkipStartForDebug {
+		log.Warn().Msg("Skip start minecraft server for debug purpose. Do not use this flag for the real server.")
+		return stdoutChan, stderrChan, nil
+	}
+
 	if err := s.svrProcess.Start(); err != nil {
 		return nil, nil, errors.Wrap(err, "cannot start server subprocess")
 	}
-
-	stdoutChan := make(chan string)
-	stderrChan := make(chan string)
 
 	go streamReaderToChan(s.stdoutPipe, stdoutChan)
 	go streamReaderToChan(s.stderrPipe, stderrChan)
@@ -92,6 +97,11 @@ func (s *minecraftServer) Start() (chan string, chan string, error) {
 }
 
 func (s *minecraftServer) Stop() error {
+	if s.cfg.SkipStartForDebug {
+		log.Warn().Msg("Skip stop minecraft server for debug purpose.")
+		return nil
+	}
+
 	if err := s.PutCommand("stop"); err != nil {
 		return errors.Wrap(err, "cannot stop server")
 	}
