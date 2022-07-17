@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/doppiolab/mcman/internal/config"
+	"github.com/doppiolab/mcman/internal/server/routes"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,6 +16,8 @@ func New(cfg *config.ServerConfig) (*http.Server, error) {
 	}
 	e.Renderer = renderer
 	e.Static("/static", "static")
+
+	e.GET("/", routes.GetIndexPage)
 
 	httpServer := &http.Server{
 		Addr:    cfg.Host,
