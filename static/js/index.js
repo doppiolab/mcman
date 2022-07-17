@@ -3,7 +3,7 @@ $(document).ready(function () {
         alert("Clicked")
     })
 
-    $('#log-cacontainerrd').terminal(function (command) {
+    $('#log-container').terminal(function (command) {
         this.echo(command)
     }, {
         greetings: `Welcome to the minecraft server mananger (mcman).
