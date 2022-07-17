@@ -8,30 +8,23 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    z-index: 100;
-    box-shadow: 0 2px 10px 2px rgba(131, 131, 131, 0.6);
+    box-shadow: 0 2px 10px 4px rgba(0, 0, 0, 0.2);
 }
 
 #fab-container {
     position: fixed;
     bottom: 0;
     right: 0;
+    z-index: 200;
     margin: 32px;
 }
 
-#log-card {
-    display: none;
+#log-container {
     width: 70vw;
     height: 100vh;
     position: fixed;
     bottom: 0;
-    right: 0;
-    z-index: 200;
+    right: -75vw;
+    z-index: 100;
     box-shadow: 0 0 10px 2px rgba(131, 131, 131, 0.6);
-}
-
-@media screen and (max-width: 800px) {
-    #log-card {
-        width: 100vw;
-    }
 }

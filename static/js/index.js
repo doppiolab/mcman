@@ -1,6 +1,27 @@
 $(document).ready(function () {
+    var isContainerOpened = false;
     $("#open-log-container").click(function () {
-        alert("Clicked")
+        var targetValue;
+        var buttonText;
+        if (isContainerOpened) {
+            targetValue = "-75vw";
+            buttonText = "/"
+        } else {
+            targetValue = "0";
+            buttonText = "X"
+        }
+        isContainerOpened = !isContainerOpened;
+
+        $("#open-log-container").text(buttonText)
+
+        $('#log-container').animate({
+            right: targetValue
+        }, {
+            duration: 500,
+            specialEasing: {
+                right: "swing"
+            }
+        });
     })
 
     $('#log-container').terminal(function (command) {
