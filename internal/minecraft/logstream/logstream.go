@@ -87,11 +87,11 @@ func (l *logStream) streamChansToCallbacks() {
 
 func (l *logStream) sendAllRemainedData() {
 	for chanId, ch := range l.chans {
-		l.sendReaminedData(chanId, ch)
+		l.sendRemainedData(chanId, ch)
 	}
 }
 
-func (l *logStream) sendReaminedData(chanId string, ch chan string) {
+func (l *logStream) sendRemainedData(chanId string, ch chan string) {
 	for {
 		select {
 		case msg, ok := <-ch:
