@@ -63,7 +63,7 @@ GitHub Repository: https://github.com/doppiolab/mcman
 
 function getColoredMsg(message, type) {
     if (type == "stderr")
-        return `<span class='system-stderr'>${message}</span>`
+        return `<span class='stderr-msg'>${message}</span>`
     if (type == "System")
         return `<span class='system-msg'>${message}</span>`
     return message

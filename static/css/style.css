@@ -33,10 +33,6 @@
     color: yellow;
 }
 
-.system-stdout {
-    color: skyblue;
-}
-
-.system-stderr {
+.stderr-msg {
     color: rgb(199, 36, 53);
 }
