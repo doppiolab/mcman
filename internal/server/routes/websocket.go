@@ -3,7 +3,6 @@ package routes
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/doppiolab/mcman/internal/minecraft"
 	"github.com/doppiolab/mcman/internal/minecraft/logstream"
@@ -11,7 +10,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/time/rate"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
 )
@@ -48,14 +46,7 @@ func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func
 		})
 		defer ls.DeregisterLogCallback(socketUUID)
 
-		// TODO(hayeon): make the rate and duration configurable
-		rateLimiter := rate.NewLimiter(rate.Every(time.Millisecond*100), 10)
 		for {
-			err := rateLimiter.Wait(ctx)
-			if err != nil {
-				return errors.Wrap(err, "rate limit error")
-			}
-
 			var payload mcmanWsPayload
 			if err = wsjson.Read(ctx, ws, &payload); err != nil {
 				if errors.Is(err, context.Canceled) {
