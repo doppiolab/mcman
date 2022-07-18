@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot start minecraft server")
 	}
-	log.Info().Int("pid", mcsvr.GetProcess().Process.Pid).Msgf("started minecraft server")
+	log.Info().Msgf("started minecraft server")
 
 	// launch log stream
 	logStream := logstream.New(&cfg.Minecraft.LogWebhook, map[string]chan string{"stdout": stdout, "stderr": stderr})
@@ -55,7 +55,7 @@ func main() {
 	logStream.Start()
 
 	// launch server
-	svr, err := server.New(&cfg.Server)
+	svr, err := server.New(&cfg.Server, mcsvr, logStream)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create server")
 	}
