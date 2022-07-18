@@ -3,6 +3,7 @@ module github.com/doppiolab/mcman
 go 1.18
 
 require (
+	github.com/Tnze/go-mc v1.18.2
 	github.com/bep/debounce v1.2.1
 	github.com/golang/mock v1.4.4
 	github.com/google/uuid v1.3.0
@@ -17,7 +18,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/compress v1.10.3 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect

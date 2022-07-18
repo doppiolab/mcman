@@ -76,7 +76,9 @@ func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func
 				continue
 			}
 
-			mcsrv.PutCommand(payload.Msg)
+			if err := mcsrv.PutCommand(payload.Msg); err != nil {
+				log.Error().Err(err).Msg("cannot send command")
+			}
 		}
 	}
 }
