@@ -2,6 +2,7 @@ package logstream
 
 import (
 	"testing"
+	"time"
 
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/stretchr/testify/assert"
@@ -25,6 +26,7 @@ func TestLogStream_Callback(t *testing.T) {
 	// Register callback and send dummy text
 	logStream.RegisterLogCallback("test", resultsAppendCallback)
 	testChan <- "dummy_text"
+	sleep5ms(t)
 
 	require.Equal(t, 1, len(results))
 	require.Equal(t, "[test] dummy_text", results[0])
@@ -32,6 +34,7 @@ func TestLogStream_Callback(t *testing.T) {
 	// Deregister callback and send dummy text
 	logStream.DeregisterLogCallback("test")
 	testChan <- "dummy_text"
+	sleep5ms(t)
 
 	require.Equal(t, 1, len(results)) // it should not be appended anymore
 }
@@ -55,6 +58,7 @@ func TestLogStream_CallbackWithMultipleChannel(t *testing.T) {
 	logStream.RegisterLogCallback("test", resultsAppendCallback)
 	testChan <- "dummy_text"
 	testChan2 <- "dummy_text 123"
+	sleep5ms(t)
 
 	require.Equal(t, 2, len(results))
 	require.Equal(t, "[test] dummy_text", results[0])
@@ -95,4 +99,9 @@ func TestLogStream_SendAfterStop(t *testing.T) {
 	default:
 		t.Log("success")
 	}
+}
+
+func sleep5ms(t *testing.T) {
+	t.Helper()
+	time.Sleep(time.Millisecond * 5)
 }
