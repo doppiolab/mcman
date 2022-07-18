@@ -17,7 +17,8 @@ func New(cfg *config.ServerConfig) (*http.Server, error) {
 	e.Renderer = renderer
 	e.Static("/static", "static")
 
-	e.GET("/", routes.GetIndexPage)
+	e.GET("/", routes.GetIndexPage())
+	e.GET("/ws/terminal", routes.ServeTerminal())
 
 	httpServer := &http.Server{
 		Addr:    cfg.Host,
