@@ -17,13 +17,19 @@ import (
 )
 
 type mcmanWsPayload struct {
-	Msg string `json:"msg"`
+	Type string `json:"type"`
+	Msg  string `json:"msg"`
 }
 
 // Serve minecraft tty service via websocket.
 func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		ws, err := websocket.Accept(c.Response(), c.Request(), nil)
+		ws, err := websocket.Accept(c.Response(), c.Request(), &websocket.AcceptOptions{
+			// NOTE(hayeon): CompressionThreshold is set to arbitrary large value because of below issue.
+			//               Maybe splitting payload can be required when there's message those lengths are longer than 16384.
+			//               https://github.com/nhooyr/websocket/issues/218
+			CompressionThreshold: 16384,
+		})
 		if err != nil {
 			return errors.Wrap(err, "cannot upgrade http connection to websocket connection.")
 		}
@@ -34,7 +40,7 @@ func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func
 		ctx := c.Request().Context()
 		socketUUID := fmt.Sprintf("ws-%s", uuid.New().String())
 		ls.RegisterLogCallback(socketUUID, func(lb *logstream.LogBlock) error {
-			err := wsjson.Write(ctx, ws, &mcmanWsPayload{Msg: lb.String()})
+			err := wsjson.Write(ctx, ws, &mcmanWsPayload{Msg: lb.Msg, Type: lb.ChanId})
 			if err != nil {
 				return errors.Wrap(err, "cannot send messages")
 			}
@@ -42,14 +48,7 @@ func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func
 		})
 		defer ls.DeregisterLogCallback(socketUUID)
 
-		go (func() {
-			time.Sleep(time.Second * 3)
-			wsjson.Write(ctx, ws, &mcmanWsPayload{Msg: "hello world"})
-			wsjson.Write(ctx, ws, &mcmanWsPayload{Msg: "hello world"})
-			wsjson.Write(ctx, ws, &mcmanWsPayload{Msg: "hello world"})
-			wsjson.Write(ctx, ws, &mcmanWsPayload{Msg: "hello world"})
-		})()
-
+		// TODO(hayeon): make the rate and duration configurable
 		rateLimiter := rate.NewLimiter(rate.Every(time.Millisecond*100), 10)
 		for {
 			err := rateLimiter.Wait(ctx)
@@ -70,8 +69,9 @@ func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func
 					return nil
 				}
 
+				// NOTE(hayeon): If payload size is longer than compression threshold.
+				//               We don't want to handle this error, so disconnect the connection for now.
 				if closeStatus == websocket.StatusProtocolError {
-					// TODO: temp code branch
 					log.Error().Err(err).Msg("cannot read messages")
 					return nil
 				}

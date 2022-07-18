@@ -44,28 +44,27 @@ GitHub Repository: https://github.com/doppiolab/mcman
 `,
         height: '100%',
         width: '100%',
-        prompt: 'mcman> '
+        prompt: '[[g;#00ff00;>]mcman ➜] '
     });
 
     webSocketConnect = new WebSocket("ws://" + document.location.host + '/ws/terminal');
     webSocketConnect.onopen = function () {
-        terminalObject.echo(getColoredMsg("[System] Connection opened."), { raw: true });
+        terminalObject.echo(getColoredMsg("[System] Connection opened.", "System"), { raw: true });
     };
     webSocketConnect.onclose = function (event) {
-        terminalObject.echo(getColoredMsg("[System] Connection closed."), { raw: true });
+        terminalObject.echo(getColoredMsg("[System] Connection closed.", "System"), { raw: true });
     };
     webSocketConnect.onmessage = function (event) {
-        payload = JSON.parse(event.data)
-        terminalObject.echo(getColoredMsg(payload.msg), { raw: true });
+        var payload = JSON.parse(event.data)
+        var msg = payload.msg.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+        terminalObject.echo(getColoredMsg(msg, payload.type), { raw: true });
     };
 });
 
-function getColoredMsg(message) {
-    if (message.includes("[stdout]"))
-        return message.replace("[stdout]", "<span class='system-stdout'>[stdout]</span>")
-    if (message.includes("[stderr]"))
-        return message.replace("[stderr]", "<span class='system-stderr'>[stderr]</span>")
-    if (message.includes("[System]"))
-        return message.replace("[System]", "<span class='system-msg'>[System]</span>")
+function getColoredMsg(message, type) {
+    if (type == "stderr")
+        return `<span class='system-stderr'>${message}</span>`
+    if (type == "System")
+        return `<span class='system-msg'>${message}</span>`
     return message
 }
