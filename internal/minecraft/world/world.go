@@ -6,18 +6,35 @@ import (
 	"os"
 	"path"
 
+	"github.com/Tnze/go-mc/level"
+	"github.com/Tnze/go-mc/level/block"
 	"github.com/Tnze/go-mc/save"
 	"github.com/Tnze/go-mc/save/region"
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
+
+type BlockInfo struct {
+	ID         string // block id string ex> "minecraft:stone"
+	BlockLight uint8  // the amount of block-emitted light
+	SkyLight   uint8  // the amount of sunlight or moonlight hitting each block
+}
+
+type TopViewChunk struct {
+	X      int32         // bottom left corner coordinate of region
+	Z      int32         // bottom left corner coordinate of region
+	Blocks [][]BlockInfo // block infos. [x][z]
+}
+
+type TopViewRegion struct {
+	Chunks []*TopViewChunk // chunk infos.
+}
 
 type WorldReader interface {
 	// Read world/level.dat file
 	GetLevel() (*save.Level, error)
 	// Read world/region/r.[x].[z].mca file
-	GetChunk(x, z int) (*region.Region, error)
+	GetRegion(x, z int) (*TopViewRegion, error)
 }
 
 type worldReader struct {
@@ -51,7 +68,10 @@ func (r *worldReader) GetLevel() (*save.Level, error) {
 	return &data, nil
 }
 
-func (wr *worldReader) GetChunk(x, z int) (*region.Region, error) {
+const numValuesPerHeightmap = 16 * 16
+const numBitsPerValueOfHeightmap = 9
+
+func (wr *worldReader) GetRegion(x, z int) (*TopViewRegion, error) {
 	chunkFilePath := path.Join(wr.cfg.WorkingDir, "world", "region", fmt.Sprintf("r.%d.%d.mca", x, z))
 	r, err := region.Open(chunkFilePath)
 	if err != nil {
@@ -59,8 +79,74 @@ func (wr *worldReader) GetChunk(x, z int) (*region.Region, error) {
 	}
 	defer r.Close()
 
+	result := &TopViewRegion{}
+	for x := 0; x < 32; x++ {
+		for z := 0; z < 32; z++ {
+			if chunk := getChunkData(r, x, z); chunk != nil {
+				result.Chunks = append(result.Chunks, chunk)
+			}
+		}
+	}
+	return result, nil
+}
+
+// Get Chunk data for viewer.
+//
+// NOTE(jeongukjae): this function will return nil if raise error
+func getChunkData(r *region.Region, regionX, regionZ int) *TopViewChunk {
+	c, err := getChunkFromRegion(r, regionX, regionZ)
+	if err != nil {
+		return nil
+	}
+	lc, err := level.ChunkFromSave(c)
+	if err != nil {
+		return nil
+	}
+
+	if !isValidChunk(c) {
+		return nil
+	}
+
+	result := &TopViewChunk{
+		X:      c.XPos,
+		Z:      c.ZPos,
+		Blocks: make([][]BlockInfo, 16),
+	}
+
+	for x := 0; x < 16; x++ {
+		result.Blocks[x] = make([]BlockInfo, 16)
+		for z := 0; z < 16; z++ {
+			y := lc.HeightMaps.WorldSurface.Get(z*16 + x)
+			yPos := (y + int(c.YPos)) % 16
+
+			pos := yPos*16*16 + z*16 + x
+			section := lc.Sections[y/16]
+
+			if section.BlockLight != nil {
+				// 2 block share the same bytes
+				result.Blocks[x][z].BlockLight = (section.BlockLight[pos/2] >> ((pos % 2) * 4)) & 0x0F
+			}
+			if section.SkyLight != nil {
+				result.Blocks[x][z].SkyLight = (section.SkyLight[pos/2] >> ((pos % 2) * 4)) & 0x0F
+			}
+
+			blockStateID := section.GetBlock(pos)
+			result.Blocks[x][z].ID = block.StateList[blockStateID].ID()
+		}
+	}
+
+	return result
+}
+
+// Get chunk from x, z coordinates.
+func getChunkFromRegion(r *region.Region, x, z int) (*save.Chunk, error) {
 	var c save.Chunk
-	data, err := r.ReadSector(0, 0)
+
+	if !r.ExistSector(x, z) {
+		return nil, errors.New("cannot find chunk")
+	}
+
+	data, err := r.ReadSector(x, z)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot open sector")
 	}
@@ -68,9 +154,17 @@ func (wr *worldReader) GetChunk(x, z int) (*region.Region, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot load sector data")
 	}
-	// for i := len(c.Sections) - 1 ; i >= 0;i-- {
-	// 	log.Info().Interface("section", c.Sections[i]).Msg("H")
-	// }
-	log.Info().Interface("c", c).Msg("Hello")
-	return r, nil
+
+	return &c, nil
+}
+
+// Return true if chunk is valid.
+func isValidChunk(c *save.Chunk) bool {
+	if c.Status == "full" {
+		return true
+	}
+
+	// TODO(jeongukjae): add futher checks
+
+	return false
 }
