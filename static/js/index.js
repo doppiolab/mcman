@@ -1,6 +1,7 @@
 $(document).ready(function () {
     var webSocketConnect;
     var isContainerOpened = false;
+
     $("#open-log-container").click(function () {
         var targetValue;
         var buttonText;
@@ -59,6 +60,21 @@ GitHub Repository: https://github.com/doppiolab/mcman
         var msg = payload.msg.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
         terminalObject.echo(getColoredMsg(msg, payload.type), { raw: true });
     };
+
+    new ol.Map({
+        target: 'map',
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM()
+            })
+        ],
+        view: new ol.View({
+            center: ol.proj.fromLonLat([0, 0]),
+            zoom: 4
+        })
+    });
+
+
 });
 
 function getColoredMsg(message, type) {

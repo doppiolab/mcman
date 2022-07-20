@@ -36,3 +36,8 @@
 .stderr-msg {
     color: rgb(199, 36, 53);
 }
+
+#map {
+    height: calc(100vh - 56px);
+    width: 100vw;
+}
