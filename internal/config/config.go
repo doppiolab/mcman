@@ -18,6 +18,10 @@ type ServerConfig struct {
 	Host string `mapstructure:"host"`
 	// Print debug messages if true.
 	Debug bool `mapstructure:"debug"`
+	// Static file path
+	StaticPath string `mapstructure:"static_path"`
+	// Template file path
+	TemplatePath string `mapstructure:"template_path"`
 }
 
 type MinecraftConfig struct {
@@ -46,6 +50,8 @@ func init() {
 
 	viper.SetDefault("server.host", ":8000")
 	viper.SetDefault("server.debug", false)
+	viper.SetDefault("server.static_path", "./static")
+	viper.SetDefault("server.template_path", "./templates")
 
 	viper.SetDefault("minecraft.java_command", "java")
 	viper.SetDefault("minecraft.working_dir", ".")

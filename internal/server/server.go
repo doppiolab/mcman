@@ -3,6 +3,7 @@ package server
 import (
 	"html/template"
 	"net/http"
+	"path"
 
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/doppiolab/mcman/internal/minecraft"
@@ -14,10 +15,10 @@ import (
 func New(cfg *config.ServerConfig, mcsrv minecraft.MinecraftServer, ls logstream.LogStream) (*http.Server, error) {
 	e := echo.New()
 	renderer := &templateRenderer{
-		templates: template.Must(template.ParseGlob("templates/*.html")),
+		templates: template.Must(template.ParseGlob(path.Join(cfg.TemplatePath, "*.html"))),
 	}
 	e.Renderer = renderer
-	e.Static("/static", "static")
+	e.Static("/static", cfg.StaticPath)
 
 	e.GET("/", routes.GetIndexPage())
 	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls))
