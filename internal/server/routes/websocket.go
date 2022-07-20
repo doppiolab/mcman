@@ -67,6 +67,11 @@ func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func
 					return nil
 				}
 
+				if closeStatus == websocket.StatusNoStatusRcvd {
+					log.Error().Err(err).Msg("cannot read messages")
+					return nil
+				}
+
 				log.Error().Err(err).Msg("cannot read messages")
 				continue
 			}
