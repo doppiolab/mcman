@@ -21,12 +21,14 @@ func New(
 	ls logstream.LogStream,
 	worldReader world.WorldReader) (*http.Server, error) {
 	e := echo.New()
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{}))
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogStatus: true,
-		LogURI:    true,
-		LogMethod: true,
+		LogStatus:  true,
+		LogURI:     true,
+		LogMethod:  true,
+		LogLatency: true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			log.Info().Str("method", v.Method).Str("uri", v.URI).Int("status", v.Status).Msg("request")
+			log.Info().Str("method", v.Method).Str("uri", v.URI).Int("status", v.Status).Dur("latency", v.Latency).Msg("request")
 			return nil
 		},
 	}))
