@@ -1,0 +1,12 @@
+server:
+  host: 0.0.0.0:8000
+  static_path: /static
+  template_path: /templates
+  debug: false
+minecraft:
+  java_command: "/usr/bin/java"
+  jar_path: "/server-1.19.jar"
+  working_dir: "/mcman/data"
+  log_webhook:
+    slack:
+    discord:
