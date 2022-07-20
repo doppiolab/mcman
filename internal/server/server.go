@@ -19,6 +19,7 @@ func New(cfg *config.ServerConfig, mcsrv minecraft.MinecraftServer, ls logstream
 	}
 	e.Renderer = renderer
 	e.Static("/static", cfg.StaticPath)
+	e.File("/favicon.ico", path.Join(cfg.StaticPath, "favicon.ico"))
 
 	e.GET("/", routes.GetIndexPage())
 	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls))
