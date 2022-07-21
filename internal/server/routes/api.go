@@ -13,6 +13,18 @@ type getMapDataPayload struct {
 	Z int `json:"z"`
 }
 
+// Get Region List
+func GetRegionList(reader world.WorldReader) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		l, err := reader.GetRegionList()
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to get region list").Error())
+		}
+
+		return c.JSON(http.StatusOK, l)
+	}
+}
+
 // Get Map data for viewer
 func GetMapChunkImage(reader world.WorldReader) func(c echo.Context) error {
 	return func(c echo.Context) error {

@@ -41,3 +41,12 @@
     height: calc(100vh - 56px);
     width: 100vw;
 }
+
+#map .leaflet-image-layer {
+    image-rendering: optimizeSpeed;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
+    image-rendering: optimize-contrast;
+}

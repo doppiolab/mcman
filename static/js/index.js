@@ -61,15 +61,30 @@ GitHub Repository: https://github.com/doppiolab/mcman
         terminalObject.echo(getColoredMsg(msg, payload.type), { raw: true });
     };
 
-    // load map
+    map = L.map('map', {crs: L.CRS.Simple, minZoom: -10}).setView([0, 0], 0)
+
     $.ajax({
-        method: "POST",
-        url: "/api/v1/map",
+        method: "GET",
+        url: "/api/v1/regions",
         dataType: "json",
         contentType: "application/json",
-        data : JSON.stringify( { x: 0, z: 0 }),
         success: function (data) {
-            // map = L.map('map').setView([0, 0], 13)
+            scale = 32 * 16 * 2
+            for (var i = 0; i < data.length; i++) {
+                var region = data[i];
+
+                var bounds = [
+                    [
+                        -(region.Z) * scale,
+                        (region.X + 1) * scale,
+                    ],
+                    [
+                        -(region.Z + 1) * scale,
+                        region.X * scale,
+                    ]
+                ];
+                var image = L.imageOverlay(`/api/v1/map.png?x=${region.X}&z=${region.Z}`, bounds).addTo(map);
+            }
         },
     })
 });

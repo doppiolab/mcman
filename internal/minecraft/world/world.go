@@ -3,6 +3,7 @@ package world
 import (
 	"compress/gzip"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"sync"
@@ -22,8 +23,8 @@ type BlockInfo struct {
 }
 
 type TopViewChunk struct {
-	X      int32         // bottom left corner coordinate of region
-	Z      int32         // bottom left corner coordinate of region
+	X      int           // bottom left corner coordinate of region
+	Z      int           // bottom left corner coordinate of region
 	Blocks [][]BlockInfo // block infos. [x][z], 16*16
 }
 
@@ -34,11 +35,18 @@ type TopViewRegion struct {
 	Chunks  []*TopViewChunk // chunk infos.
 }
 
+type RegionPoint struct {
+	X int
+	Z int
+}
+
 type WorldReader interface {
 	// Read world/level.dat file
 	GetLevel() (*save.Level, error)
 	// Read world/region/r.[x].[z].mca file
 	GetRegion(x, z int) (*TopViewRegion, error)
+	// Get region list
+	GetRegionList() ([]RegionPoint, error)
 }
 
 type worldReader struct {
@@ -115,6 +123,26 @@ func (wr *worldReader) GetRegion(x, z int) (*TopViewRegion, error) {
 	return result, nil
 }
 
+func (wr *worldReader) GetRegionList() ([]RegionPoint, error) {
+	chunkFilePath := path.Join(wr.cfg.WorkingDir, "world", "region")
+	files, err := ioutil.ReadDir(chunkFilePath)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot list directory")
+	}
+
+	results := []RegionPoint{}
+
+	for _, file := range files {
+		var x, z int
+		_, err := fmt.Sscanf(file.Name(), "r.%d.%d.mca", &x, &z)
+		if err == nil {
+			results = append(results, RegionPoint{x, z})
+		}
+	}
+
+	return results, nil
+}
+
 // Get Chunk data for viewer.
 //
 // NOTE(jeongukjae): this function will return nil if raise error
@@ -134,8 +162,8 @@ func (wr *worldReader) getChunkData(r *region.Region, regionX, regionZ int) *Top
 	}
 
 	result := &TopViewChunk{
-		X:      c.XPos,
-		Z:      c.ZPos,
+		X:      int(c.XPos),
+		Z:      int(c.ZPos),
 		Blocks: make([][]BlockInfo, 16),
 	}
 
