@@ -81,9 +81,6 @@ func (r *worldReader) GetLevel() (*save.Level, error) {
 	return &data, nil
 }
 
-const numValuesPerHeightmap = 16 * 16
-const numBitsPerValueOfHeightmap = 9
-
 func (wr *worldReader) GetRegion(x, z int) (*TopViewRegion, error) {
 	chunkFilePath := path.Join(wr.cfg.WorkingDir, "world", "region", fmt.Sprintf("r.%d.%d.mca", x, z))
 	r, err := region.Open(chunkFilePath)

@@ -8,7 +8,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var defaultColor = mustParseColor("#dddddd")
 var colorMap = map[string]color.RGBA{
 	"minecraft:acacia_button":                      mustParseColor("#ab5c33"),
 	"minecraft:acacia_door":                        mustParseColor("#ab5c33"),
