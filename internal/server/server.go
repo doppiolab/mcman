@@ -51,7 +51,7 @@ func New(
 	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls))
 
 	e.GET("/api/v1/regions", routes.GetRegionList(worldReader))
-	e.GET("/api/v1/map.png", routes.GetMapChunkImage(worldReader))
+	e.GET("/api/v1/chunk/:x/:z/map.png", routes.GetMapChunkImage(worldReader))
 	e.POST("/api/v1/player", routes.GetPlayerData(worldReader))
 
 	httpServer := &http.Server{

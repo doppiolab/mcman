@@ -29,11 +29,12 @@ func GetRegionList(reader world.WorldReader) func(c echo.Context) error {
 func GetMapChunkImage(reader world.WorldReader) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		p := getMapDataPayload{}
-		err := echo.QueryParamsBinder(c).Int("x", &p.X).Int("z", &p.Z).BindError()
+		err := echo.PathParamsBinder(c).Int("x", &p.X).Int("z", &p.Z).BindError()
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
+		// TODO(jeongukjae): Cache and regenerate if changed
 		region, err := reader.GetRegion(p.X, p.Z)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to get level").Error())

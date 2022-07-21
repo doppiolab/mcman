@@ -83,7 +83,7 @@ GitHub Repository: https://github.com/doppiolab/mcman
                         region.X * scale,
                     ]
                 ];
-                var image = L.imageOverlay(`/api/v1/map.png?x=${region.X}&z=${region.Z}`, bounds).addTo(map);
+                L.imageOverlay(`/api/v1/chunk/${region.X}/${region.Z}/map.png`, bounds).addTo(map);
             }
         },
     })
