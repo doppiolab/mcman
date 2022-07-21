@@ -89,27 +89,43 @@ GitHub Repository: https://github.com/doppiolab/mcman
         },
     })
 
-    $.ajax({
-        method: "GET",
-        url: "/api/v1/players",
-        dataType: "json",
-        contentType: "application/json",
-        success: function (data) {
-            for (var i = 0; i < data.length; i++) {
-                var player = data[i];
+    markers = {}
 
-                var headIcon = L.icon({
-                    iconUrl: `https://crafatar.com/renders/head/${player.UUID}`,
-                    iconSize:     [30, 30],
-                });
+    function getMarkerContent(player) {
+        return `Name: ${player.Name}<br/>UUID: ${player.UUID}<br/>Position: [x: ${player.X.toFixed(2)}, y: ${player.Y.toFixed(2)}, x: ${player.Z.toFixed(2)}]`
+    }
 
-                L.
-                    marker([-player.Z, player.X], {icon: headIcon}).
-                    addTo(map).
-                    bindPopup(`Name: ${player.Name}<br/>UUID: ${player.UUID}<br/>Position: [x: ${player.X.toFixed(2)}, y: ${player.Y.toFixed(2)}, x: ${player.Z.toFixed(2)}]`);;
+    function updateMarker() {
+        $.ajax({
+            method: "GET",
+            url: "/api/v1/players",
+            dataType: "json",
+            contentType: "application/json",
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var player = data[i];
+
+                    var headIcon = L.icon({
+                        iconUrl: `https://crafatar.com/renders/head/${player.UUID}`,
+                        iconSize:     [30, 30],
+                    });
+
+                    if (player.UUID in markers) {
+                        markers[player.UUID].setLatLng([-player.Z, player.X]);
+                        markers[player.UUID].getPopup().setContent(getMarkerContent(player));
+                    } else {
+                        markers[player.UUID] = L.
+                                                marker([-player.Z, player.X], {icon: headIcon}).
+                                                addTo(map).
+                                                bindPopup(getMarkerContent(player));
+                    }
+                }
             }
-        }
-    })
+        })
+    }
+
+    setInterval(updateMarker, 5000);
+    updateMarker();
 });
 
 function getColoredMsg(message, type) {
