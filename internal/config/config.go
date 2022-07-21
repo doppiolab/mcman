@@ -22,6 +22,8 @@ type ServerConfig struct {
 	StaticPath string `mapstructure:"static_path"`
 	// Template file path
 	TemplatePath string `mapstructure:"template_path"`
+	// Temporary directory path
+	TemporaryPath string `mapstructure:"temporary_path"`
 }
 
 type MinecraftConfig struct {
@@ -52,6 +54,7 @@ func init() {
 	viper.SetDefault("server.debug", false)
 	viper.SetDefault("server.static_path", "./static")
 	viper.SetDefault("server.template_path", "./templates")
+	viper.SetDefault("server.temporary_path", "./tmp")
 
 	viper.SetDefault("minecraft.java_command", "java")
 	viper.SetDefault("minecraft.working_dir", ".")

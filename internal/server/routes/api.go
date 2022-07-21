@@ -26,7 +26,7 @@ func GetRegionList(reader world.WorldReader) func(c echo.Context) error {
 }
 
 // Get Map data for viewer
-func GetMapChunkImage(reader world.WorldReader) func(c echo.Context) error {
+func GetMapChunkImage(reader world.WorldReader, tempPath string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		p := getMapDataPayload{}
 		err := echo.PathParamsBinder(c).Int("x", &p.X).Int("z", &p.Z).BindError()
@@ -34,15 +34,22 @@ func GetMapChunkImage(reader world.WorldReader) func(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
-		// TODO(jeongukjae): Cache and regenerate if changed
-		region, err := reader.GetRegion(p.X, p.Z)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to get level").Error())
-		}
+		// TODO(jeongukjae): invalidate cache when the save file is changed
+		var img []byte
+		img, err = world.MaybeCached(tempPath, p.X, p.Z)
 
-		img, err := world.DrawMap(region)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to draw map").Error())
+			region, err := reader.GetRegion(p.X, p.Z)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to get level").Error())
+			}
+
+			img, err = world.DrawMap(region)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to draw map").Error())
+			}
+
+			err = world.Cache(tempPath, p.X, p.Z, img)
 		}
 
 		return c.Blob(http.StatusOK, "image/x-png", img)

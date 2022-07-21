@@ -58,6 +58,13 @@ func main() {
 	logStream.Start()
 
 	// launch server
+	if _, err := os.Stat(cfg.Server.TemporaryPath); errors.Is(err, os.ErrNotExist) {
+		err := os.Mkdir(cfg.Server.TemporaryPath, os.ModePerm)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create temporary directory")
+		}
+	}
+
 	svr, err := server.New(&cfg.Server, mcsvr, logStream, worldReader)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create server")
