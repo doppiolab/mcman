@@ -52,6 +52,10 @@ func GetMapChunkImage(reader world.WorldReader) func(c echo.Context) error {
 // Get Player data for viewer
 func GetPlayerData(reader world.WorldReader) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		return nil
+		playerData, err := reader.GetPlayerData()
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to get player data").Error())
+		}
+		return c.JSON(http.StatusOK, playerData)
 	}
 }

@@ -69,7 +69,7 @@ GitHub Repository: https://github.com/doppiolab/mcman
         dataType: "json",
         contentType: "application/json",
         success: function (data) {
-            scale = 32 * 16 * 2
+            scale = 32 * 16
             for (var i = 0; i < data.length; i++) {
                 var region = data[i];
 
@@ -83,9 +83,32 @@ GitHub Repository: https://github.com/doppiolab/mcman
                         region.X * scale,
                     ]
                 ];
+
                 L.imageOverlay(`/api/v1/chunk/${region.X}/${region.Z}/map.png`, bounds).addTo(map);
             }
         },
+    })
+
+    $.ajax({
+        method: "GET",
+        url: "/api/v1/players",
+        dataType: "json",
+        contentType: "application/json",
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                var player = data[i];
+
+                var headIcon = L.icon({
+                    iconUrl: `https://crafatar.com/renders/head/${player.UUID}`,
+                    iconSize:     [30, 30],
+                });
+
+                L.
+                    marker([-player.Z, player.X], {icon: headIcon}).
+                    addTo(map).
+                    bindPopup(`Name: ${player.Name}<br/>UUID: ${player.UUID}<br/>Position: [x: ${player.X.toFixed(2)}, y: ${player.Y.toFixed(2)}, x: ${player.Z.toFixed(2)}]`);;
+            }
+        }
     })
 });
 

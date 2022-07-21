@@ -2,10 +2,12 @@ package world
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 	"sync"
 
 	"github.com/Tnze/go-mc/level"
@@ -14,6 +16,7 @@ import (
 	"github.com/Tnze/go-mc/save/region"
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 type BlockInfo struct {
@@ -40,6 +43,14 @@ type RegionPoint struct {
 	Z int
 }
 
+type PlayerData struct {
+	UUID string
+	Name string
+	X    float64
+	Y    float64
+	Z    float64
+}
+
 type WorldReader interface {
 	// Read world/level.dat file
 	GetLevel() (*save.Level, error)
@@ -47,6 +58,8 @@ type WorldReader interface {
 	GetRegion(x, z int) (*TopViewRegion, error)
 	// Get region list
 	GetRegionList() ([]RegionPoint, error)
+	// Get Player Data
+	GetPlayerData() ([]PlayerData, error)
 }
 
 type worldReader struct {
@@ -140,6 +153,66 @@ func (wr *worldReader) GetRegionList() ([]RegionPoint, error) {
 	return results, nil
 }
 
+func (wr *worldReader) GetPlayerData() ([]PlayerData, error) {
+	playerdataPath := path.Join(wr.cfg.WorkingDir, "world", "playerdata")
+	files, err := ioutil.ReadDir(playerdataPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot list directory")
+	}
+
+	userCache, err := readUserCache(path.Join(wr.cfg.WorkingDir, "usercache.json"))
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read usercache.json")
+	}
+	userNameMap := map[string]string{}
+	for _, user := range userCache {
+		userNameMap[user.UUID] = user.Name
+	}
+
+	results := []PlayerData{}
+	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), ".dat") {
+			continue
+		}
+
+		f, err := os.Open(path.Join(playerdataPath, file.Name()))
+		if err != nil {
+			log.Error().Err(err).Str("file", file.Name()).Msg("cannot open playerdata file")
+			continue
+		}
+		defer f.Close()
+
+		r, err := gzip.NewReader(f)
+		if err != nil {
+			log.Error().Err(err).Str("file", file.Name()).Msg("cannot read playerdata file as gzip")
+			continue
+		}
+		defer r.Close()
+
+		data, err := save.ReadPlayerData(r)
+		if err != nil {
+			log.Error().Err(err).Str("file", file.Name()).Msg("cannot unmarshal playerdata file")
+			continue
+		}
+
+		uuid := strings.TrimSuffix(file.Name(), ".dat")
+
+		name, ok := userNameMap[uuid]
+		if !ok {
+			name = "**UNKNOWN**"
+		}
+		results = append(results, PlayerData{
+			UUID: uuid,
+			Name: name,
+			X:    data.Pos[0],
+			Y:    data.Pos[1],
+			Z:    data.Pos[2],
+		})
+	}
+
+	return results, nil
+}
+
 // Get Chunk data for viewer.
 //
 // NOTE(jeongukjae): this function will return nil if raise error
@@ -220,4 +293,28 @@ func isValidChunk(c *save.Chunk) bool {
 	// TODO(jeongukjae): add futher checks
 
 	return false
+}
+
+type userCache struct {
+	Name string `json:"name"`
+	UUID string `json:"uuid"`
+}
+
+func readUserCache(path string) ([]userCache, error) {
+	jsonFile, err := os.Open(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot open user cache")
+	}
+	defer jsonFile.Close()
+
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read user cache")
+	}
+	var users []userCache
+	if err := json.Unmarshal(byteValue, &users); err != nil {
+		return nil, errors.Wrap(err, "cannot unmarshal user cache")
+	}
+
+	return users, nil
 }

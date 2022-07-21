@@ -52,7 +52,7 @@ func New(
 
 	e.GET("/api/v1/regions", routes.GetRegionList(worldReader))
 	e.GET("/api/v1/chunk/:x/:z/map.png", routes.GetMapChunkImage(worldReader))
-	e.POST("/api/v1/player", routes.GetPlayerData(worldReader))
+	e.GET("/api/v1/players", routes.GetPlayerData(worldReader))
 
 	httpServer := &http.Server{
 		Addr:    cfg.Host,
