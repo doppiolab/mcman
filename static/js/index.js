@@ -61,20 +61,17 @@ GitHub Repository: https://github.com/doppiolab/mcman
         terminalObject.echo(getColoredMsg(msg, payload.type), { raw: true });
     };
 
-    new ol.Map({
-        target: 'map',
-        layers: [
-            new ol.layer.Tile({
-                source: new ol.source.OSM()
-            })
-        ],
-        view: new ol.View({
-            center: ol.proj.fromLonLat([0, 0]),
-            zoom: 4
-        })
-    });
-
-
+    // load map
+    $.ajax({
+        method: "POST",
+        url: "/api/v1/map",
+        dataType: "json",
+        contentType: "application/json",
+        data : JSON.stringify( { x: 0, z: 0 }),
+        success: function (data) {
+            // map = L.map('map').setView([0, 0], 13)
+        },
+    })
 });
 
 function getColoredMsg(message, type) {

@@ -14,18 +14,25 @@ type getMapDataPayload struct {
 }
 
 // Get Map data for viewer
-func GetMapData(reader world.WorldReader) func(c echo.Context) error {
+func GetMapChunkImage(reader world.WorldReader) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		p := getMapDataPayload{}
-		if err := c.Bind(&p); err != nil {
+		err := echo.QueryParamsBinder(c).Int("x", &p.X).Int("z", &p.Z).BindError()
+		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
 		region, err := reader.GetRegion(p.X, p.Z)
 		if err != nil {
-			return errors.Wrap(err, "failed to get level")
+			return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to get level").Error())
 		}
-		return c.JSON(http.StatusOK, region)
+
+		img, err := world.DrawMap(region)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, errors.Wrap(err, "failed to draw map").Error())
+		}
+
+		return c.Blob(http.StatusOK, "image/x-png", img)
 	}
 }
 

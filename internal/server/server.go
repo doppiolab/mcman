@@ -27,8 +27,15 @@ func New(
 		LogURI:     true,
 		LogMethod:  true,
 		LogLatency: true,
+		LogError:   true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			log.Info().Str("method", v.Method).Str("uri", v.URI).Int("status", v.Status).Dur("latency", v.Latency).Msg("request")
+			log.Info().
+				Str("method", v.Method).
+				Str("uri", v.URI).
+				Int("status", v.Status).
+				Dur("latency", v.Latency).
+				Err(v.Error).
+				Msg("request")
 			return nil
 		},
 	}))
@@ -43,7 +50,7 @@ func New(
 	e.GET("/", routes.GetIndexPage())
 	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls))
 
-	e.POST("/api/v1/map", routes.GetMapData(worldReader))
+	e.GET("/api/v1/map.png", routes.GetMapChunkImage(worldReader))
 	e.POST("/api/v1/player", routes.GetPlayerData(worldReader))
 
 	httpServer := &http.Server{

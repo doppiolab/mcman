@@ -23,11 +23,14 @@ type BlockInfo struct {
 type TopViewChunk struct {
 	X      int32         // bottom left corner coordinate of region
 	Z      int32         // bottom left corner coordinate of region
-	Blocks [][]BlockInfo // block infos. [x][z]
+	Blocks [][]BlockInfo // block infos. [x][z], 16*16
 }
 
+// TopViewRegion covers all 32*32 chunks in a single region file.
 type TopViewRegion struct {
-	Chunks []*TopViewChunk // chunk infos.
+	RegionX int
+	RegionZ int
+	Chunks  []*TopViewChunk // chunk infos.
 }
 
 type WorldReader interface {
@@ -79,9 +82,12 @@ func (wr *worldReader) GetRegion(x, z int) (*TopViewRegion, error) {
 	}
 	defer r.Close()
 
-	result := &TopViewRegion{}
-	for x := 0; x < 32; x++ {
-		for z := 0; z < 32; z++ {
+	result := &TopViewRegion{
+		RegionX: x,
+		RegionZ: z,
+	}
+	for z := 0; z < 32; z++ {
+		for x := 0; x < 32; x++ {
 			if chunk := getChunkData(r, x, z); chunk != nil {
 				result.Chunks = append(result.Chunks, chunk)
 			}
@@ -98,12 +104,12 @@ func getChunkData(r *region.Region, regionX, regionZ int) *TopViewChunk {
 	if err != nil {
 		return nil
 	}
-	lc, err := level.ChunkFromSave(c)
-	if err != nil {
+	if !isValidChunk(c) {
 		return nil
 	}
 
-	if !isValidChunk(c) {
+	lc, err := level.ChunkFromSave(c)
+	if err != nil {
 		return nil
 	}
 
@@ -113,25 +119,24 @@ func getChunkData(r *region.Region, regionX, regionZ int) *TopViewChunk {
 		Blocks: make([][]BlockInfo, 16),
 	}
 
-	for x := 0; x < 16; x++ {
-		result.Blocks[x] = make([]BlockInfo, 16)
-		for z := 0; z < 16; z++ {
-			y := lc.HeightMaps.WorldSurface.Get(z*16 + x)
-			yPos := (y + int(c.YPos)) % 16
+	for z := 0; z < 16; z++ {
+		result.Blocks[z] = make([]BlockInfo, 16)
+		for x := 0; x < 16; x++ {
+			y := lc.HeightMaps.WorldSurface.Get(z*16+x) - 1
+			section := lc.Sections[y/16]
+			yPos := y % 16
 
 			pos := yPos*16*16 + z*16 + x
-			section := lc.Sections[y/16]
 
 			if section.BlockLight != nil {
-				// 2 block share the same bytes
-				result.Blocks[x][z].BlockLight = (section.BlockLight[pos/2] >> ((pos % 2) * 4)) & 0x0F
+				result.Blocks[z][x].BlockLight = (section.BlockLight[pos/2] >> ((pos % 2) * 4)) & 0x0F
 			}
 			if section.SkyLight != nil {
-				result.Blocks[x][z].SkyLight = (section.SkyLight[pos/2] >> ((pos % 2) * 4)) & 0x0F
+				result.Blocks[z][x].SkyLight = (section.SkyLight[pos/2] >> ((pos % 2) * 4)) & 0x0F
 			}
 
 			blockStateID := section.GetBlock(pos)
-			result.Blocks[x][z].ID = block.StateList[blockStateID].ID()
+			result.Blocks[z][x].ID = block.StateList[blockStateID].ID()
 		}
 	}
 
