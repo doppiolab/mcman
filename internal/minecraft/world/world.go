@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sync"
 
 	"github.com/Tnze/go-mc/level"
 	"github.com/Tnze/go-mc/level/block"
@@ -41,7 +42,8 @@ type WorldReader interface {
 }
 
 type worldReader struct {
-	cfg *config.MinecraftConfig
+	cfg      *config.MinecraftConfig
+	readLock sync.Mutex
 }
 
 func NewReader(cfg *config.MinecraftConfig) WorldReader {
@@ -86,24 +88,42 @@ func (wr *worldReader) GetRegion(x, z int) (*TopViewRegion, error) {
 		RegionX: x,
 		RegionZ: z,
 	}
+
+	var wg sync.WaitGroup
+	queue := make(chan *TopViewChunk, 1)
+	wg.Add(32 * 32)
 	for z := 0; z < 32; z++ {
-		for x := 0; x < 32; x++ {
-			if chunk := getChunkData(r, x, z); chunk != nil {
+		go func(z int) {
+			for x := 0; x < 32; x++ {
+				queue <- wr.getChunkData(r, x, z)
+			}
+		}(z)
+	}
+
+	go func() {
+		for chunk := range queue {
+			if chunk != nil {
 				result.Chunks = append(result.Chunks, chunk)
 			}
+			wg.Done()
 		}
-	}
+	}()
+
+	wg.Wait()
+	close(queue)
+
 	return result, nil
 }
 
 // Get Chunk data for viewer.
 //
 // NOTE(jeongukjae): this function will return nil if raise error
-func getChunkData(r *region.Region, regionX, regionZ int) *TopViewChunk {
-	c, err := getChunkFromRegion(r, regionX, regionZ)
+func (wr *worldReader) getChunkData(r *region.Region, regionX, regionZ int) *TopViewChunk {
+	c, err := wr.getChunkFromRegion(r, regionX, regionZ)
 	if err != nil {
 		return nil
 	}
+
 	if !isValidChunk(c) {
 		return nil
 	}
@@ -144,17 +164,20 @@ func getChunkData(r *region.Region, regionX, regionZ int) *TopViewChunk {
 }
 
 // Get chunk from x, z coordinates.
-func getChunkFromRegion(r *region.Region, x, z int) (*save.Chunk, error) {
+func (wr *worldReader) getChunkFromRegion(r *region.Region, x, z int) (*save.Chunk, error) {
 	var c save.Chunk
 
 	if !r.ExistSector(x, z) {
 		return nil, errors.New("cannot find chunk")
 	}
 
+	wr.readLock.Lock()
 	data, err := r.ReadSector(x, z)
+	wr.readLock.Unlock()
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot open sector")
 	}
+
 	err = c.Load(data)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot load sector data")
