@@ -6,6 +6,7 @@ import (
 	"github.com/doppiolab/mcman/internal/minecraft/world"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 type getMapDataPayload struct {
@@ -50,6 +51,9 @@ func GetMapChunkImage(reader world.WorldReader, tempPath string) func(c echo.Con
 			}
 
 			err = world.Cache(tempPath, p.X, p.Z, img)
+			if err != nil {
+				log.Error().Err(err).Int("x", p.X).Int("z", p.Z).Msg("cannot cache")
+			}
 		}
 
 		return c.Blob(http.StatusOK, "image/x-png", img)
