@@ -63,7 +63,7 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to create server")
 	}
 	go (func() {
-		log.Info().Msgf("start to listen on http://%s", svr.Addr)
+		log.Info().Msgf("start to listen on http://%s/", svr.Addr)
 		if err := svr.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error().Err(err).Msg("cannot serve http server")
 		}
