@@ -11,7 +11,7 @@ test:
 .PHONY: cover
 ## cover: run all tests
 cover:
-	go test -race -coverprofile=coverage.out -v ./...
+	go test -race -coverprofile=coverage.out -covermode=atomic -v ./...
 
 .PHONY: gen
 ## gen: run go generate
