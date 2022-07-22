@@ -1,4 +1,4 @@
-package world
+package mcmap
 
 import (
 	"bytes"
@@ -7,21 +7,25 @@ import (
 	"image/png"
 	"strings"
 
+	"github.com/doppiolab/mcman/internal/minecraft/mcdata"
 	"github.com/pkg/errors"
 )
 
-func DrawMap(r *TopViewRegion) ([]byte, error) {
+// Draw region info as map image in PNG format
+func DrawMap(r *mcdata.RegionInfo) ([]byte, error) {
 	topLeft := image.Point{0, 0}
-	bottomRight := image.Point{32 * 16, 32 * 16}
+	numRowPerRegion := mcdata.NumChunkRows * mcdata.NumBlockRows
+	bottomRight := image.Point{numRowPerRegion, numRowPerRegion}
 
 	img := image.NewRGBA(image.Rectangle{topLeft, bottomRight})
 
-	originX := r.RegionX * 32 * 16
-	originZ := r.RegionZ * 32 * 16
+	originX := r.RegionX * numRowPerRegion
+	originZ := r.RegionZ * numRowPerRegion
 	notFoundBlocks := map[string]bool{}
+
 	for _, tvc := range r.Chunks {
-		chunkX := int(tvc.X*16) - originX
-		chunkZ := int(tvc.Z*16) - originZ
+		chunkX := int(tvc.X*mcdata.NumBlockRows) - originX
+		chunkZ := int(tvc.Z*mcdata.NumBlockRows) - originZ
 		for z, blocks := range tvc.Blocks {
 			for x, block := range blocks {
 				color, ok := colorMap[block.ID]
@@ -42,6 +46,7 @@ func DrawMap(r *TopViewRegion) ([]byte, error) {
 			}
 		}
 	}
+
 	if len(notFoundBlocks) != 0 {
 		keys := make([]string, 0, len(notFoundBlocks))
 		for k := range notFoundBlocks {
@@ -55,5 +60,6 @@ func DrawMap(r *TopViewRegion) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to encode image")
 	}
+
 	return buf.Bytes(), nil
 }

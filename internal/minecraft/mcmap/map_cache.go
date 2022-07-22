@@ -1,4 +1,4 @@
-package world
+package mcmap
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Return cached image if exists, otherwise return error
 func MaybeCached(tempDirectory string, x, z int) ([]byte, error) {
 	fileInfo, err := os.Stat(path.Join(tempDirectory, imageCacheName(x, z)))
 	if errors.Is(err, os.ErrNotExist) {
@@ -30,6 +31,7 @@ func MaybeCached(tempDirectory string, x, z int) ([]byte, error) {
 	return ioutil.ReadAll(file)
 }
 
+// Cache image to temp directory
 func Cache(tempDirectory string, x, z int, img []byte) error {
 	file, err := os.Create(path.Join(tempDirectory, imageCacheName(x, z)))
 	if err != nil {

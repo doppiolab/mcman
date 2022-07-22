@@ -6,9 +6,8 @@ import (
 	"path"
 
 	"github.com/doppiolab/mcman/internal/config"
+	"github.com/doppiolab/mcman/internal/logstream"
 	"github.com/doppiolab/mcman/internal/minecraft"
-	"github.com/doppiolab/mcman/internal/minecraft/logstream"
-	"github.com/doppiolab/mcman/internal/minecraft/world"
 	"github.com/doppiolab/mcman/internal/server/routes"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -18,9 +17,10 @@ import (
 func New(
 	cfg *config.ServerConfig,
 	mcsrv minecraft.MinecraftServer,
-	ls logstream.LogStream,
-	worldReader world.WorldReader) (*http.Server, error) {
+	mcDataPath string,
+	ls logstream.LogStream) (*http.Server, error) {
 	e := echo.New()
+
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{}))
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus:  true,
@@ -50,9 +50,9 @@ func New(
 	e.GET("/", routes.GetIndexPage())
 	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls))
 
-	e.GET("/api/v1/regions", routes.GetRegionList(worldReader))
-	e.GET("/api/v1/chunk/:x/:z/map.png", routes.GetMapChunkImage(worldReader, cfg.TemporaryPath))
-	e.GET("/api/v1/players", routes.GetPlayerData(worldReader))
+	e.GET("/api/v1/regions", routes.GetRegionList(mcDataPath))
+	e.GET("/api/v1/chunk/:x/:z/map.png", routes.GetMapChunkImage(mcDataPath, cfg.TemporaryPath))
+	e.GET("/api/v1/players", routes.GetPlayerData(mcDataPath))
 
 	httpServer := &http.Server{
 		Addr:    cfg.Host,

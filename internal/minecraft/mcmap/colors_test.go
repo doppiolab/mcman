@@ -1,4 +1,4 @@
-package world
+package mcmap
 
 import (
 	"fmt"

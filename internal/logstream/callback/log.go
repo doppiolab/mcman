@@ -1,7 +1,7 @@
 package callback
 
 import (
-	"github.com/doppiolab/mcman/internal/minecraft/logstream"
+	"github.com/doppiolab/mcman/internal/logstream"
 	"github.com/rs/zerolog"
 )
 

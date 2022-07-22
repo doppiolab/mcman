@@ -5,6 +5,7 @@
 package minecraft
 
 import (
+	exec "os/exec"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -31,6 +32,20 @@ func NewMockMinecraftServer(ctrl *gomock.Controller) *MockMinecraftServer {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockMinecraftServer) EXPECT() *MockMinecraftServerMockRecorder {
 	return m.recorder
+}
+
+// GetProcess mocks base method.
+func (m *MockMinecraftServer) GetProcess() *exec.Cmd {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProcess")
+	ret0, _ := ret[0].(*exec.Cmd)
+	return ret0
+}
+
+// GetProcess indicates an expected call of GetProcess.
+func (mr *MockMinecraftServerMockRecorder) GetProcess() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProcess", reflect.TypeOf((*MockMinecraftServer)(nil).GetProcess))
 }
 
 // PutCommand mocks base method.

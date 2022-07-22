@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/doppiolab/mcman/internal/logstream"
 	"github.com/doppiolab/mcman/internal/minecraft"
-	"github.com/doppiolab/mcman/internal/minecraft/logstream"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"

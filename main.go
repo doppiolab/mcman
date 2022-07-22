@@ -10,10 +10,9 @@ import (
 	"syscall"
 
 	"github.com/doppiolab/mcman/internal/config"
+	"github.com/doppiolab/mcman/internal/logstream"
+	"github.com/doppiolab/mcman/internal/logstream/callback"
 	"github.com/doppiolab/mcman/internal/minecraft"
-	"github.com/doppiolab/mcman/internal/minecraft/logstream"
-	"github.com/doppiolab/mcman/internal/minecraft/logstream/callback"
-	"github.com/doppiolab/mcman/internal/minecraft/world"
 	"github.com/doppiolab/mcman/internal/server"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -39,8 +38,6 @@ func main() {
 	log.Info().Str("config-file", *configFileName).Msg("start mcman")
 
 	// launch minecraft server
-	worldReader := world.NewReader(&cfg.Minecraft)
-
 	mcsvr, err := minecraft.NewMinecraftServer(&cfg.Minecraft)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create minecraft server")
@@ -65,7 +62,7 @@ func main() {
 		}
 	}
 
-	svr, err := server.New(&cfg.Server, mcsvr, logStream, worldReader)
+	svr, err := server.New(&cfg.Server, mcsvr, cfg.Minecraft.WorkingDir, logStream)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create server")
 	}

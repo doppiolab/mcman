@@ -12,7 +12,7 @@ import (
 
 	"github.com/bep/debounce"
 	"github.com/doppiolab/mcman/internal/config"
-	"github.com/doppiolab/mcman/internal/minecraft/logstream"
+	"github.com/doppiolab/mcman/internal/logstream"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
