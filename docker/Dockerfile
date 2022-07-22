@@ -1,14 +1,8 @@
-ARG GOLANG_VERSION=1.18
-FROM golang:${GOLANG_VERSION} as build
+ARG ARCH=amd64
+FROM gcr.io/distroless/java17-debian11:latest-${ARCH}
 
-WORKDIR /go/src/app
-COPY . .
-
-RUN go mod download
-RUN CGO_ENABLED=0 go build -o /go/bin/app
-
-FROM gcr.io/distroless/java17-debian11
-COPY --from=build /go/bin/app /
+ARG ARCH
+COPY ./bin/mcman.linux.${ARCH} /app
 COPY ./resources/server-1.19.jar /
 COPY ./static /static
 COPY ./templates /templates
