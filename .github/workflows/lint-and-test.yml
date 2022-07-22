@@ -2,49 +2,49 @@ name: Lint and Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   lint_and_test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
 
-    - name: Build
-      run: go build -v ./...
+      - name: Build
+        run: go build -v ./...
 
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3
-      with:
-        args: -c .golangci.yaml
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          args: -c .golangci.yaml
 
-    - name: Test
-      run: make cover
+      - name: Test
+        run: make cover
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
 
   build_docker:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
 
-    - name: Build
-      run: make build-linux
+      - name: Build
+        run: make build-linux
 
-    - name: Build docker image
-      run: |
-        docker build --platform arm64 --build-arg ARCH=arm64 -f docker/Dockerfile .
-        docker build --platform amd64 --build-arg ARCH=amd64 -f docker/Dockerfile .
+      - name: Build docker image
+        run: |
+          docker build --platform arm64 --build-arg ARCH=arm64 -f docker/Dockerfile .
+          docker build --platform amd64 --build-arg ARCH=amd64 -f docker/Dockerfile .
