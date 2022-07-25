@@ -8,6 +8,7 @@ import (
 	"github.com/doppiolab/mcman/internal/config"
 	"github.com/doppiolab/mcman/internal/logstream"
 	"github.com/doppiolab/mcman/internal/minecraft"
+	"github.com/doppiolab/mcman/internal/server/auth"
 	"github.com/doppiolab/mcman/internal/server/routes"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,8 +20,11 @@ func New(
 	mcsrv minecraft.MinecraftServer,
 	mcDataPath string,
 	ls logstream.LogStream) (*http.Server, error) {
+	auth.Initialize(cfg)
+
 	e := echo.New()
 
+	e.Use(middleware.Recover())
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{}))
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus:  true,
@@ -44,15 +48,21 @@ func New(
 		templates: template.Must(template.ParseGlob(path.Join(cfg.TemplatePath, "*.html"))),
 	}
 	e.Renderer = renderer
+
 	e.Static("/static", cfg.StaticPath)
 	e.File("/favicon.ico", path.Join(cfg.StaticPath, "favicon.ico"))
 
-	e.GET("/", routes.GetIndexPage())
-	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls))
+	e.GET("/login", routes.GetLoginPage())
+	e.POST("/login", routes.PostLoginPage())
 
-	e.GET("/api/v1/regions", routes.GetRegionList(mcDataPath))
-	e.GET("/api/v1/chunk/:x/:z/map.png", routes.GetMapChunkImage(mcDataPath, cfg.TemporaryPath))
-	e.GET("/api/v1/players", routes.GetPlayerData(mcDataPath))
+	authMiddleware := auth.NewJWTMiddleware()
+
+	e.GET("/", routes.GetIndexPage(), authMiddleware)
+	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls), authMiddleware)
+
+	e.GET("/api/v1/regions", routes.GetRegionList(mcDataPath), authMiddleware)
+	e.GET("/api/v1/chunk/:x/:z/map.png", routes.GetMapChunkImage(mcDataPath, cfg.TemporaryPath), authMiddleware)
+	e.GET("/api/v1/players", routes.GetPlayerData(mcDataPath), authMiddleware)
 
 	httpServer := &http.Server{
 		Addr:    cfg.Host,

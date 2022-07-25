@@ -27,11 +27,15 @@ const randomGeneratedPasswordLength = 8
 const randomGeneratedPasswordCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIZKLMNOPQSTUVWXYZ0123456789"
 
 func generateRandomPassword() string {
-	randomString := make([]byte, randomGeneratedPasswordLength)
-	lenCharset := len(randomGeneratedPasswordCharset)
+	return generateRandomString(randomGeneratedPasswordCharset, randomGeneratedPasswordLength)
+}
 
-	for i := 0; i < randomGeneratedPasswordLength; i++ {
-		randomString[i] = randomGeneratedPasswordCharset[rand.Intn(lenCharset)]
+func generateRandomString(charset string, length int) string {
+	randomString := make([]byte, length)
+	lenCharset := len(charset)
+
+	for i := 0; i < length; i++ {
+		randomString[i] = charset[rand.Intn(lenCharset)]
 	}
 
 	return string(randomString)

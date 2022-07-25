@@ -24,6 +24,8 @@ type ServerConfig struct {
 	TemplatePath string `mapstructure:"template_path"`
 	// Temporary directory path
 	TemporaryPath string `mapstructure:"temporary_path"`
+	// Environment Variable Key for password
+	PasswordEnvKey string `mapstructure:"password_env_key"`
 }
 
 type MinecraftConfig struct {
