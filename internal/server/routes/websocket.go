@@ -20,7 +20,7 @@ type mcmanWsPayload struct {
 }
 
 // Serve minecraft tty service via websocket.
-func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func(c echo.Context) error {
+func ServeTerminal(mcsrv minecraft.Server, ls logstream.LogStream) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ws, err := websocket.Accept(c.Response(), c.Request(), &websocket.AcceptOptions{
 			// NOTE(hayeon): CompressionThreshold is set to arbitrary large value because of below issue.
@@ -29,7 +29,7 @@ func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func
 			CompressionThreshold: 16384,
 		})
 		if err != nil {
-			return errors.Wrap(err, "cannot upgrade http connection to websocket connection.")
+			return errors.Wrap(err, "cannot upgrade http connection to websocket connection")
 		}
 		// WebSocket conn should not be closed with below statement.
 		// This is to confirm that websocket conn is closed before the http connection is ended.
@@ -38,7 +38,7 @@ func ServeTerminal(mcsrv minecraft.MinecraftServer, ls logstream.LogStream) func
 		ctx := c.Request().Context()
 		socketUUID := fmt.Sprintf("ws-%s", uuid.New().String())
 		ls.RegisterLogCallback(socketUUID, func(lb *logstream.LogBlock) error {
-			err := wsjson.Write(ctx, ws, &mcmanWsPayload{Msg: lb.Msg, Type: lb.ChanId})
+			err := wsjson.Write(ctx, ws, &mcmanWsPayload{Msg: lb.Msg, Type: lb.ChanID})
 			if err != nil {
 				return errors.Wrap(err, "cannot send messages")
 			}

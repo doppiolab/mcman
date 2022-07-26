@@ -17,7 +17,7 @@ import (
 
 func New(
 	cfg *config.ServerConfig,
-	mcsrv minecraft.MinecraftServer,
+	mcsrv minecraft.Server,
 	mcDataPath string,
 	ls logstream.LogStream) (*http.Server, error) {
 	auth.Initialize(cfg)

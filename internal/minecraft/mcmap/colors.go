@@ -967,7 +967,7 @@ func mustParseColor(s string) (c color.RGBA) {
 		c.G *= 17
 		c.B *= 17
 	default:
-		err = errors.New("invalid length.")
+		err = errors.New("invalid length")
 	}
 
 	if err != nil {

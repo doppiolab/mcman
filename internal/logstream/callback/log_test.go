@@ -13,7 +13,7 @@ func TestLogCallback(t *testing.T) {
 	out := &bytes.Buffer{}
 	logger := zerolog.New(out)
 	logBlock := &logstream.LogBlock{
-		ChanId: "test",
+		ChanID: "test",
 		Msg:    "dummy text",
 	}
 	callback := NewLogCallback(logger)

@@ -14,9 +14,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-//go:generate mockgen -source minecraft.go -destination minecraft_mock.go -package "minecraft" MinecraftServer
+//go:generate mockgen -source minecraft.go -destination minecraft_mock.go -package "minecraft" Server
 
-type MinecraftServer interface {
+type Server interface {
 	// Start subprocess and returns stdout and stderr channel.
 	Start() (chan string, chan string, error)
 
@@ -30,7 +30,7 @@ type MinecraftServer interface {
 	GetProcess() *exec.Cmd
 }
 
-type minecraftServer struct {
+type server struct {
 	cfg *config.MinecraftConfig
 
 	svrProcess *exec.Cmd
@@ -41,7 +41,7 @@ type minecraftServer struct {
 	stdinLock sync.Mutex
 }
 
-func NewMinecraftServer(cfg *config.MinecraftConfig) (MinecraftServer, error) {
+func NewServer(cfg *config.MinecraftConfig) (Server, error) {
 	minecraftCommand := createMinecraftCommandArgs(cfg)
 	log.Info().Msgf("launch minecraft server. cmd: %s %s", cfg.JavaCommand, strings.Join(minecraftCommand, " "))
 	mcCmd := exec.Command(cfg.JavaCommand, minecraftCommand...)
@@ -68,7 +68,7 @@ func NewMinecraftServer(cfg *config.MinecraftConfig) (MinecraftServer, error) {
 		}
 	}
 
-	return &minecraftServer{
+	return &server{
 		svrProcess: mcCmd,
 		cfg:        cfg,
 		stdinPipe:  stdinPipe,
@@ -77,7 +77,7 @@ func NewMinecraftServer(cfg *config.MinecraftConfig) (MinecraftServer, error) {
 	}, nil
 }
 
-func (s *minecraftServer) Start() (chan string, chan string, error) {
+func (s *server) Start() (chan string, chan string, error) {
 	stdoutChan := make(chan string)
 	stderrChan := make(chan string)
 
@@ -96,7 +96,7 @@ func (s *minecraftServer) Start() (chan string, chan string, error) {
 	return stdoutChan, stderrChan, nil
 }
 
-func (s *minecraftServer) Stop() error {
+func (s *server) Stop() error {
 	if s.cfg.SkipStartForDebug {
 		log.Warn().Msg("Skip stop minecraft server for debug purpose.")
 		return nil
@@ -113,7 +113,7 @@ func (s *minecraftServer) Stop() error {
 	return nil
 }
 
-func (s *minecraftServer) PutCommand(cmd string) error {
+func (s *server) PutCommand(cmd string) error {
 	s.stdinLock.Lock()
 	defer s.stdinLock.Unlock()
 
@@ -126,7 +126,7 @@ func (s *minecraftServer) PutCommand(cmd string) error {
 	return nil
 }
 
-func (s *minecraftServer) GetProcess() *exec.Cmd {
+func (s *server) GetProcess() *exec.Cmd {
 	return s.svrProcess
 }
 

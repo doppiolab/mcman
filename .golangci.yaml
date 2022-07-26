@@ -1,4 +1,9 @@
 linters:
+  enable:
+    - errcheck
+    - goimports
+    - revive
+    - govet
   disable:
     - structcheck
     - gosimple

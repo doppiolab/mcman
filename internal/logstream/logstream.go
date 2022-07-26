@@ -65,7 +65,7 @@ func (l *logStream) streamChansToCallbacks() {
 		default:
 		}
 
-		for chanId, ch := range l.chans {
+		for chanID, ch := range l.chans {
 			select {
 			case msg, ok := <-ch:
 				if !ok {
@@ -73,7 +73,7 @@ func (l *logStream) streamChansToCallbacks() {
 				}
 
 				logBlock := &LogBlock{
-					ChanId: chanId,
+					ChanID: chanID,
 					Msg:    msg,
 				}
 
@@ -86,12 +86,12 @@ func (l *logStream) streamChansToCallbacks() {
 }
 
 func (l *logStream) sendAllRemainedData() {
-	for chanId, ch := range l.chans {
-		l.sendRemainedData(chanId, ch)
+	for chanID, ch := range l.chans {
+		l.sendRemainedData(chanID, ch)
 	}
 }
 
-func (l *logStream) sendRemainedData(chanId string, ch chan string) {
+func (l *logStream) sendRemainedData(chanID string, ch chan string) {
 	for {
 		select {
 		case msg, ok := <-ch:
@@ -99,7 +99,7 @@ func (l *logStream) sendRemainedData(chanId string, ch chan string) {
 				return
 			}
 			logBlock := &LogBlock{
-				ChanId: chanId,
+				ChanID: chanID,
 				Msg:    msg,
 			}
 			l.sendToAllCallbacks(logBlock)

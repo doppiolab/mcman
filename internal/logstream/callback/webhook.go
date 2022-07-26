@@ -53,15 +53,15 @@ func (c *webhookCallback) fireWebhook() {
 	// TODO(jeongukjae): change ctx to context.WithTimeout
 	ctx := context.Background()
 
-	if c.cfg.SlackUrl != "" {
+	if c.cfg.SlackURL != "" {
 		log.Debug().Int("n-logs", len(c.logLineBuffer)).Msg("send slack webhook")
-		err := executeSlackWebhook(ctx, http.DefaultClient, c.cfg.SlackUrl, c.logLineBuffer)
+		err := executeSlackWebhook(ctx, http.DefaultClient, c.cfg.SlackURL, c.logLineBuffer)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to send discord webhook")
 		}
-	} else if c.cfg.DiscordUrl != "" {
+	} else if c.cfg.DiscordURL != "" {
 		log.Debug().Int("n-logs", len(c.logLineBuffer)).Msg("send discord webhook")
-		err := executeDiscordWebhook(ctx, http.DefaultClient, c.cfg.DiscordUrl, c.logLineBuffer)
+		err := executeDiscordWebhook(ctx, http.DefaultClient, c.cfg.DiscordURL, c.logLineBuffer)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to send discord webhook")
 		}
@@ -142,10 +142,10 @@ func executeWebhook(
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			log.Error().Err(err).Msg("cannot read request body")
-			return errors.New(fmt.Sprintf("non-%d response and cannot read request body. status: %s", successCode, response.Status))
+			return fmt.Errorf("non-%d response and cannot read request body. status: %s", successCode, response.Status)
 		}
 
-		return errors.New(fmt.Sprintf("non-%d response. status: %s, body: %s", successCode, response.Status, string(body)))
+		return fmt.Errorf("non-%d response. status: %s, body: %s", successCode, response.Status, string(body))
 	}
 
 	return nil

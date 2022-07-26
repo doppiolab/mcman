@@ -38,7 +38,7 @@ func main() {
 	log.Info().Str("config-file", *configFileName).Msg("start mcman")
 
 	// launch minecraft server
-	mcsvr, err := minecraft.NewMinecraftServer(&cfg.Minecraft)
+	mcsvr, err := minecraft.NewServer(&cfg.Minecraft)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create minecraft server")
 	}

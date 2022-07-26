@@ -52,7 +52,7 @@ func DrawMap(r *mcdata.RegionInfo) ([]byte, error) {
 		for k := range notFoundBlocks {
 			keys = append(keys, k)
 		}
-		return nil, errors.New(fmt.Sprintf("cannot find color for %s", strings.Join(keys, ", ")))
+		return nil, fmt.Errorf("cannot find color for %s", strings.Join(keys, ", "))
 	}
 
 	buf := new(bytes.Buffer)

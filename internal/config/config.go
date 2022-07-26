@@ -39,8 +39,8 @@ type MinecraftConfig struct {
 }
 
 type LogWebhookConfig struct {
-	DiscordUrl string `mapstructure:"discord"`
-	SlackUrl   string `mapstructure:"slack"`
+	DiscordURL string `mapstructure:"discord"`
+	SlackURL   string `mapstructure:"slack"`
 	// threshold for debouncing log stream, unit: millisecond
 	DebounceThreshold int `mapstructure:"debounce_threshold"`
 }

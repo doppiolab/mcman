@@ -11,31 +11,31 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockMinecraftServer is a mock of MinecraftServer interface.
-type MockMinecraftServer struct {
+// MockServer is a mock of Server interface.
+type MockServer struct {
 	ctrl     *gomock.Controller
-	recorder *MockMinecraftServerMockRecorder
+	recorder *MockServerMockRecorder
 }
 
-// MockMinecraftServerMockRecorder is the mock recorder for MockMinecraftServer.
-type MockMinecraftServerMockRecorder struct {
-	mock *MockMinecraftServer
+// MockServerMockRecorder is the mock recorder for MockServer.
+type MockServerMockRecorder struct {
+	mock *MockServer
 }
 
-// NewMockMinecraftServer creates a new mock instance.
-func NewMockMinecraftServer(ctrl *gomock.Controller) *MockMinecraftServer {
-	mock := &MockMinecraftServer{ctrl: ctrl}
-	mock.recorder = &MockMinecraftServerMockRecorder{mock}
+// NewMockServer creates a new mock instance.
+func NewMockServer(ctrl *gomock.Controller) *MockServer {
+	mock := &MockServer{ctrl: ctrl}
+	mock.recorder = &MockServerMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockMinecraftServer) EXPECT() *MockMinecraftServerMockRecorder {
+func (m *MockServer) EXPECT() *MockServerMockRecorder {
 	return m.recorder
 }
 
 // GetProcess mocks base method.
-func (m *MockMinecraftServer) GetProcess() *exec.Cmd {
+func (m *MockServer) GetProcess() *exec.Cmd {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetProcess")
 	ret0, _ := ret[0].(*exec.Cmd)
@@ -43,13 +43,13 @@ func (m *MockMinecraftServer) GetProcess() *exec.Cmd {
 }
 
 // GetProcess indicates an expected call of GetProcess.
-func (mr *MockMinecraftServerMockRecorder) GetProcess() *gomock.Call {
+func (mr *MockServerMockRecorder) GetProcess() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProcess", reflect.TypeOf((*MockMinecraftServer)(nil).GetProcess))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProcess", reflect.TypeOf((*MockServer)(nil).GetProcess))
 }
 
 // PutCommand mocks base method.
-func (m *MockMinecraftServer) PutCommand(cmd string) error {
+func (m *MockServer) PutCommand(cmd string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutCommand", cmd)
 	ret0, _ := ret[0].(error)
@@ -57,13 +57,13 @@ func (m *MockMinecraftServer) PutCommand(cmd string) error {
 }
 
 // PutCommand indicates an expected call of PutCommand.
-func (mr *MockMinecraftServerMockRecorder) PutCommand(cmd interface{}) *gomock.Call {
+func (mr *MockServerMockRecorder) PutCommand(cmd interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutCommand", reflect.TypeOf((*MockMinecraftServer)(nil).PutCommand), cmd)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutCommand", reflect.TypeOf((*MockServer)(nil).PutCommand), cmd)
 }
 
 // Start mocks base method.
-func (m *MockMinecraftServer) Start() (chan string, chan string, error) {
+func (m *MockServer) Start() (chan string, chan string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Start")
 	ret0, _ := ret[0].(chan string)
@@ -73,13 +73,13 @@ func (m *MockMinecraftServer) Start() (chan string, chan string, error) {
 }
 
 // Start indicates an expected call of Start.
-func (mr *MockMinecraftServerMockRecorder) Start() *gomock.Call {
+func (mr *MockServerMockRecorder) Start() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockMinecraftServer)(nil).Start))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockServer)(nil).Start))
 }
 
 // Stop mocks base method.
-func (m *MockMinecraftServer) Stop() error {
+func (m *MockServer) Stop() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Stop")
 	ret0, _ := ret[0].(error)
@@ -87,7 +87,7 @@ func (m *MockMinecraftServer) Stop() error {
 }
 
 // Stop indicates an expected call of Stop.
-func (mr *MockMinecraftServerMockRecorder) Stop() *gomock.Call {
+func (mr *MockServerMockRecorder) Stop() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockMinecraftServer)(nil).Stop))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockServer)(nil).Stop))
 }
