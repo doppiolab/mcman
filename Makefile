@@ -15,7 +15,7 @@ test:
 	go test -race -cover -v ./...
 
 .PHONY: cover
-## cover: run all tests
+## cover: run all tests with checking code coverages
 cover:
 	go test -race -coverprofile=coverage.out -covermode=atomic -v ./...
 
