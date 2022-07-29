@@ -48,7 +48,8 @@ GitHub Repository: https://github.com/doppiolab/mcman
         prompt: '[[g;#00ff00;>]mcman ➜] '
     });
 
-    webSocketConnect = new WebSocket("ws://" + document.location.host + '/ws/terminal');
+    wsProtocol = location.protocol === 'https:' ? 'wss://' : 'ws://'
+    webSocketConnect = new WebSocket(wsProtocol + document.location.host + '/ws/terminal');
     webSocketConnect.onopen = function () {
         terminalObject.echo(getColoredMsg("[System] Connection opened.", "System"), { raw: true });
     };
