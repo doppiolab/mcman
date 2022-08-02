@@ -20,6 +20,7 @@ import (
 
 var (
 	configFileName = flag.String("config", "default.yaml", "config file name")
+	GitCommit      string
 )
 
 func main() {
@@ -62,7 +63,7 @@ func main() {
 		}
 	}
 
-	svr, err := server.New(&cfg.Server, mcsvr, cfg.Minecraft.WorkingDir, logStream)
+	svr, err := server.New(&cfg.Server, mcsvr, cfg.Minecraft.WorkingDir, logStream, GitCommit)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create server")
 	}

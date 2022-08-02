@@ -1,8 +1,8 @@
 .PHONY: build-linux
 ## build-linux: build the project for linux
 build-linux:
-	GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o bin/mcman.linux.amd64 main.go
-	GOOS=linux GOARCH=arm64 go build -ldflags="-w -s" -o bin/mcman.linux.arm64 main.go
+	GOOS=linux GOARCH=amd64 go build -ldflags="-w -s -X main.GitCommit=$(git rev-parse HEAD)" -o bin/mcman.linux.amd64 main.go
+	GOOS=linux GOARCH=arm64 go build -ldflags="-w -s -X main.GitCommit=$(git rev-parse HEAD)" -o bin/mcman.linux.arm64 main.go
 
 .PHONY: lint
 ## lint: lint the source code

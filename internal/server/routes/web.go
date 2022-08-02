@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/doppiolab/mcman/internal/server/auth"
@@ -14,9 +15,11 @@ func GetIndexPage() func(c echo.Context) error {
 	}
 }
 
-func GetLoginPage() func(c echo.Context) error {
+func GetLoginPage(gitCommit string) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		return c.Render(http.StatusOK, "login.html", nil)
+		return c.Render(http.StatusOK, "login.html", echo.Map{
+			"GitCommit": fmt.Sprint("#", gitCommit[:6]),
+		})
 	}
 }
 
