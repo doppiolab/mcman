@@ -20,7 +20,10 @@ import (
 
 var (
 	configFileName = flag.String("config", "default.yaml", "config file name")
-	GitCommit      string
+)
+
+var (
+	GitCommit string
 )
 
 func main() {

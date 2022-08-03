@@ -54,11 +54,11 @@ func New(
 	e.File("/favicon.ico", path.Join(cfg.StaticPath, "favicon.ico"))
 
 	e.GET("/login", routes.GetLoginPage(gitCommit))
-	e.POST("/login", routes.PostLoginPage())
+	e.POST("/login", routes.PostLoginPage(gitCommit))
 
 	authMiddleware := auth.NewJWTMiddleware()
 
-	e.GET("/", routes.GetIndexPage(), authMiddleware)
+	e.GET("/", routes.GetIndexPage(gitCommit), authMiddleware)
 	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls), authMiddleware)
 
 	e.GET("/api/v1/regions", routes.GetRegionList(mcDataPath), authMiddleware)
