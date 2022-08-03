@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/doppiolab/mcman/internal/server/auth"
@@ -8,19 +9,23 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetIndexPage() func(c echo.Context) error {
+func GetIndexPage(gitCommit string) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		return c.Render(http.StatusOK, "index.html", nil)
+		return c.Render(http.StatusOK, "index.html", echo.Map{
+			"GitCommit": fmt.Sprint("#", gitCommit),
+		})
 	}
 }
 
-func GetLoginPage() func(c echo.Context) error {
+func GetLoginPage(gitCommit string) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		return c.Render(http.StatusOK, "login.html", nil)
+		return c.Render(http.StatusOK, "login.html", echo.Map{
+			"GitCommit": fmt.Sprint("#", gitCommit),
+		})
 	}
 }
 
-func PostLoginPage() func(c echo.Context) error {
+func PostLoginPage(gitCommit string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		// TODO(hayeon): support redirect_url
 		username := c.FormValue("id")
@@ -28,7 +33,10 @@ func PostLoginPage() func(c echo.Context) error {
 
 		token, err := auth.CreateNewToken(username, password)
 		if err != nil {
-			return c.Render(http.StatusUnauthorized, "login.html", map[string]interface{}{"err": err.Error()})
+			return c.Render(http.StatusUnauthorized, "login.html", map[string]interface{}{
+				"err":       err.Error(),
+				"GitCommit": fmt.Sprint("#", gitCommit),
+			})
 		}
 
 		log.Info().Msg(token)
