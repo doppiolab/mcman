@@ -3,7 +3,7 @@ FROM gcr.io/distroless/java17-debian11:latest-${ARCH}
 
 ARG ARCH
 COPY ./bin/mcman.linux.${ARCH} /app
-COPY ./resources/server-1.19.jar /
+COPY ./resources/server-1.19.2.jar /
 COPY ./static /static
 COPY ./templates /templates
 COPY ./docker/config.yaml /default.yaml

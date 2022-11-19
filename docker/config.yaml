@@ -5,7 +5,7 @@ server:
   debug: false
 minecraft:
   java_command: "/usr/bin/java"
-  jar_path: "/server-1.19.jar"
+  jar_path: "/server-1.19.2.jar"
   working_dir: "/mcman/data"
   log_webhook:
     slack:
