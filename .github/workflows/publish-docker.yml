@@ -45,7 +45,7 @@ jobs:
 
       - name: Build binaries
         env:
-          IMAGE_TAG: ${{ steps.version.outputs.version }}
+          MCMAN_VERSION: ${{ steps.version.outputs.version }}
         run: make build-linux
 
       - name: Build and push docker image
