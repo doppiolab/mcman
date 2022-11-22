@@ -20,7 +20,7 @@ func New(
 	mcsrv minecraft.Server,
 	mcDataPath string,
 	ls logstream.LogStream,
-	gitCommit string) (*http.Server, error) {
+	version string) (*http.Server, error) {
 	auth.Initialize(cfg)
 
 	e := echo.New()
@@ -53,12 +53,12 @@ func New(
 	e.Static("/static", cfg.StaticPath)
 	e.File("/favicon.ico", path.Join(cfg.StaticPath, "favicon.ico"))
 
-	e.GET("/login", routes.GetLoginPage(gitCommit))
-	e.POST("/login", routes.PostLoginPage(gitCommit))
+	e.GET("/login", routes.GetLoginPage(version))
+	e.POST("/login", routes.PostLoginPage(version))
 
 	authMiddleware := auth.NewJWTMiddleware()
 
-	e.GET("/", routes.GetIndexPage(gitCommit), authMiddleware)
+	e.GET("/", routes.GetIndexPage(version), authMiddleware)
 	e.GET("/ws/terminal", routes.ServeTerminal(mcsrv, ls), authMiddleware)
 
 	e.GET("/api/v1/regions", routes.GetRegionList(mcDataPath), authMiddleware)

@@ -9,23 +9,23 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetIndexPage(gitCommit string) func(c echo.Context) error {
+func GetIndexPage(version string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		return c.Render(http.StatusOK, "index.html", echo.Map{
-			"GitCommit": fmt.Sprint("#", gitCommit),
+			"Version": fmt.Sprint("#", version),
 		})
 	}
 }
 
-func GetLoginPage(gitCommit string) func(c echo.Context) error {
+func GetLoginPage(version string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		return c.Render(http.StatusOK, "login.html", echo.Map{
-			"GitCommit": fmt.Sprint("#", gitCommit),
+			"Version": fmt.Sprint("#", version),
 		})
 	}
 }
 
-func PostLoginPage(gitCommit string) func(c echo.Context) error {
+func PostLoginPage(version string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		// TODO(hayeon): support redirect_url
 		username := c.FormValue("id")
@@ -34,8 +34,8 @@ func PostLoginPage(gitCommit string) func(c echo.Context) error {
 		token, err := auth.CreateNewToken(username, password)
 		if err != nil {
 			return c.Render(http.StatusUnauthorized, "login.html", map[string]interface{}{
-				"err":       err.Error(),
-				"GitCommit": fmt.Sprint("#", gitCommit),
+				"err":     err.Error(),
+				"Version": fmt.Sprint("#", version),
 			})
 		}
 

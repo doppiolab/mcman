@@ -44,6 +44,8 @@ jobs:
           go-version: 1.18
 
       - name: Build binaries
+        env:
+          IMAGE_TAG: ${{ steps.version.outputs.version }}
         run: make build-linux
 
       - name: Build and push docker image

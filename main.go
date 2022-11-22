@@ -23,7 +23,7 @@ var (
 )
 
 var (
-	GitCommit string
+	McManVersion string
 )
 
 func main() {
@@ -66,7 +66,7 @@ func main() {
 		}
 	}
 
-	svr, err := server.New(&cfg.Server, mcsvr, cfg.Minecraft.WorkingDir, logStream, GitCommit)
+	svr, err := server.New(&cfg.Server, mcsvr, cfg.Minecraft.WorkingDir, logStream, McManVersion)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create server")
 	}
