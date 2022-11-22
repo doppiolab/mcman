@@ -56,6 +56,12 @@ func New(
 	e.GET("/login", routes.GetLoginPage(version))
 	e.POST("/login", routes.PostLoginPage(version))
 
+	if cfg.ExportModDownloadLink {
+		log.Info().Msg("exporting mod download link to /mods")
+		e.GET("/mods", routes.GetModListPage(mcDataPath, version))
+		e.GET("/mods/download/:filename", routes.GetModDownloadPage(mcDataPath))
+	}
+
 	authMiddleware := auth.NewJWTMiddleware()
 
 	e.GET("/", routes.GetIndexPage(version), authMiddleware)

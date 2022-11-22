@@ -1,6 +1,8 @@
 server:
   host: 0.0.0.0:8000
   debug: false
+  export_mod_download_link: true
+
 minecraft:
   working_dir: "./server-data"
   jar_path: "../resources/server-1.19.2.jar"

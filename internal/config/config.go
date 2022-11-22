@@ -26,6 +26,8 @@ type ServerConfig struct {
 	TemporaryPath string `mapstructure:"temporary_path"`
 	// Environment Variable Key for password
 	PasswordEnvKey string `mapstructure:"password_env_key"`
+	// Export "HOST:PORT/mods" page as a download link.
+	ExportModDownloadLink bool `mapstructure:"export_mod_download_link"`
 }
 
 type MinecraftConfig struct {

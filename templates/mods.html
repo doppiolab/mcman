@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCMan</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    <link rel="stylesheet" href="/static/bootstrap@5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">
+            <img src=" /static/favicon.ico" class="navbar-icon" /><span style="vertical-align: baseline;">MCMan</span>
+            <span class="navbar-tag">{{.Version}}</span>
+        </a>
+        <a class=" nav-link" href="https://github.com/doppiolab/mcman">About</a>
+    </nav>
+
+    <div class="container" style="margin-top: 80px">
+        <h2>Links for /mods directory contents.</h2>
+        <p>These mod files are used in this server. You can download them from the links below.</p>
+        <ul>
+            {{range $val := .mods}}
+            <li><a href="/mods/download/{{$val}}">{{$val}}</a></li>
+            {{end}}
+        </ul>
+    </div>
+
+    <script src="/static/bootstrap@5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/jquery-3.2.1/jquery-3.2.1.min.js"></script>
+</body>
+
+</html>

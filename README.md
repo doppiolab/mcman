@@ -58,7 +58,7 @@ server:
     # path to static directory.
     # recommend not to change the value in docker env.
     static_path: /static
-    # path to template directory./
+    # path to template directory.
     # recommend not to change the value in docker env.
     template_path: /templates
     # temp path.
@@ -67,6 +67,8 @@ server:
     # Environment variable key for initial password.
     # If password_env_key is not set or no env var named password_env_key, mcman generate random password and print it in the server log.
     password_env_key:
+    # If set, listing and download page (/mods) for mods are enabled.
+    export_mod_download_link: false
 
 # Minecraft dedicated server configuration
 minecraft:
