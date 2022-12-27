@@ -35,7 +35,8 @@ You can simply run mcman server packed with Minecraft dedicated server as follow
 docker run \
     -v `pwd`/server-data:/mcman/data \
     -v `pwd`/config.yaml:/config.yaml \
-    -p SOME_PORT:8000/udp -p SOME_PORT:25565/udp\
+    -p SOME_PORT:8000 \
+    -p SOME_PORT:25565/udp \
     ghcr.io/doppiolab/mcman:{IMAGE_TAG}-amd64 \
     -config /config.yaml
 ```
