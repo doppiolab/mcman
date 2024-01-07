@@ -78,7 +78,7 @@ minecraft:
     # minecraft server jar path.
     # It is recommended to use this path as absolute path,
     # since this is relative to working_dir value.
-    jar_path: "/server-1.19.2.jar"
+    jar_path: "/server-1.20.4.jar"
     # Working directory for minecraft server
     # Miencraft server will save the all server data into this directory.
     working_dir: "/mcman/data"
