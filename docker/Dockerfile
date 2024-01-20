@@ -1,5 +1,5 @@
 ARG ARCH=amd64
-FROM gcr.io/distroless/java17-debian11:latest-${ARCH}
+FROM gcr.io/distroless/java17-debian12:latest-${ARCH}
 
 ARG ARCH
 COPY ./bin/mcman.linux.${ARCH} /app
