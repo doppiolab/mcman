@@ -31,11 +31,16 @@ func New(cfg *config.LogWebhookConfig, chans map[string]chan string) LogStream {
 }
 
 func (l *logStream) Start() {
-	go l.streamChansToCallbacks()
+	for chanID, ch := range l.chans {
+		go l.streamChansToCallbacks(chanID, ch)
+	}
 }
 
 func (l *logStream) Stop() {
-	l.quit <- true
+	for _, ch := range l.chans {
+		_ = ch // Ignore the unused variable
+		l.quit <- true
+	}
 	l.sendAllRemainedData()
 }
 
@@ -55,32 +60,23 @@ func (l *logStream) GetNumLogCallbacks() int {
 	return len(l.logCallbacks)
 }
 
-func (l *logStream) streamChansToCallbacks() {
+func (l *logStream) streamChansToCallbacks(chanID string, ch chan string) {
 	for {
-		// l.chans can contain zero elements,
-		// so we need to check l.quit channel first separately.
 		select {
 		case <-l.quit:
 			return
-		default:
-		}
-
-		for chanID, ch := range l.chans {
-			select {
-			case msg, ok := <-ch:
-				if !ok {
-					continue
-				}
-
-				logBlock := &LogBlock{
-					ChanID: chanID,
-					Msg:    msg,
-				}
-
-				// send message to callbacks
-				l.sendToAllCallbacks(logBlock)
-			default:
+		case msg, ok := <-ch:
+			if !ok {
+				continue
 			}
+
+			logBlock := &LogBlock{
+				ChanID: chanID,
+				Msg:    msg,
+			}
+
+			// send message to callbacks
+			l.sendToAllCallbacks(logBlock)
 		}
 	}
 }
